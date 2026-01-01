@@ -17,7 +17,8 @@ apt install -y curl git ufw build-essential
 # 2. Configure Firewall (UFW)
 echo "[2/6] Configuring Firewall..."
 ufw allow OpenSSH
-ufw allow 'Nginx Full'
+ufw allow 80
+ufw allow 443
 ufw --force enable
 ufw status
 
