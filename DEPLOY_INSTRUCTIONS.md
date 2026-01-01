@@ -22,8 +22,8 @@ chmod +x setup_vps.sh
 navigate to the web directory and pull your code.
 
 ```bash
-mkdir -p /var/www/rivaya/html
-cd /var/www/rivaya/html
+mkdir -p /var/www/rivaya
+cd /var/www/rivaya
 
 # Clone your repo (if you haven't already, or pull latest)
 git clone https://github.com/aryantuntune/Rivaya-Ecommerce.git .
@@ -58,7 +58,7 @@ pm2 save
 ## Step 4: Frontend Setup
 
 ```bash
-cd /var/www/rivaya/html
+cd /var/www/rivaya
 npm install
 npm run build
 ```
@@ -78,7 +78,7 @@ server {
     listen 80;
     server_name rivayaonline.in www.rivayaonline.in _; # '_' allows access via IP
 
-    root /var/www/rivaya/html/dist;
+    root /var/www/rivaya/dist;
     index index.html;
 
     location / {
