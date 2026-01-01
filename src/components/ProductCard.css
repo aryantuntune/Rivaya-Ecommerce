@@ -1,0 +1,203 @@
+.product-card {
+    position: relative;
+    transition: transform var(--transition-fast);
+}
+
+.card-image-wrapper {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    background-color: var(--color-surface-subtle);
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    /* Added border as requested */
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.card-image-wrapper:hover .card-image {
+    transform: scale(1.08);
+}
+
+.badge-new {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: var(--color-accent);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.stock-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    z-index: 2;
+    border-radius: 3px;
+}
+
+.stock-badge.in-stock {
+    background-color: var(--color-success);
+    color: white;
+}
+
+.stock-badge.out-of-stock {
+    background-color: var(--color-error);
+    color: white;
+}
+
+
+.card-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all var(--transition-fast);
+}
+
+.card-image-wrapper:hover .card-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.action-btn:hover {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+
+.action-btn.active {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+.card-info {
+    padding: 12px 0;
+}
+
+.card-category {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.card-title {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.card-title a {
+    text-decoration: none;
+    color: var(--color-text);
+}
+
+.card-title a:hover {
+    color: var(--color-primary);
+}
+
+.card-price {
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.current-price {
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.original-price {
+    color: var(--color-text-light);
+    text-decoration: line-through;
+    font-size: 0.85rem;
+}
+
+/* Rating */
+.card-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stars {
+    display: flex;
+    gap: 2px;
+}
+
+.rating-text {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+/* Discount Badge */
+.discount-badge {
+    background: var(--color-accent-light);
+    color: var(--color-primary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Color Swatches */
+.color-swatches {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+}
+
+.color-swatch:hover {
+    transform: scale(1.2);
+    border-color: var(--color-primary);
+}

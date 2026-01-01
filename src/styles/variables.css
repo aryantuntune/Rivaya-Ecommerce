@@ -1,0 +1,48 @@
+:root {
+  /* Colors */
+  --color-primary: #5e1e2d; /* Deep Burgundy */
+  --color-primary-dark: #3e121d;
+  --color-accent: #d4af37; /* Gold */
+  --color-accent-light: #f3e5ab;
+  
+  --color-background: #fdfbf7; /* Warm Cream */
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f7f3ed;
+  
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-text-light: #999999;
+  --color-text-on-primary: #ffffff;
+
+  --color-border: #e6e6e6;
+  --color-success: #2e7d32;
+  --color-error: #d32f2f;
+
+  /* Typography */
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 4rem;
+  --spacing-2xl: 8rem;
+
+  /* Layout */
+  --container-max-width: 1440px;
+  --header-height: 80px;
+  --border-radius: 4px;
+  --border-radius-lg: 8px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 20px 25px rgba(0, 0, 0, 0.1);
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}

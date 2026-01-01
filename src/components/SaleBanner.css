@@ -1,0 +1,60 @@
+.sale-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    /* Fixed height for alignment */
+    z-index: 1001;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: flash 2s infinite;
+}
+
+.banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+.banner-text {
+    color: inherit;
+    font-weight: 600;
+    text-align: center;
+    flex: 1;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+.banner-close {
+    color: inherit;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.banner-close:hover {
+    opacity: 1;
+}
+
+@keyframes flash {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.85;
+    }
+}
+
+@media (max-width: 768px) {
+    .banner-text {
+        font-size: 0.85rem;
+    }
+}

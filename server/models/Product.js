@@ -1,0 +1,74 @@
+const mongoose = require('mongoose');
+
+const productSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Product name is required'],
+        trim: true
+    },
+    description: {
+        type: String,
+        required: [true, 'Product description is required']
+    },
+    category: {
+        type: String,
+        required: [true, 'Category is required'],
+        enum: ['Sarees', 'Kurtis', 'Lehenga', 'Anarkali', 'Palazzo Sets', 'Ethnic Sets']
+    },
+    price: {
+        type: Number,
+        required: [true, 'Price is required'],
+        min: 0
+    },
+    originalPrice: {
+        type: Number,
+        min: 0
+    },
+    images: [{
+        type: String,
+        required: true
+    }],
+    colors: [{
+        type: String
+    }],
+    sizes: [{
+        type: String,
+        enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+    }],
+    inStock: {
+        type: Boolean,
+        default: true
+    },
+    stockQuantity: {
+        type: Number,
+        default: 0
+    },
+    isNew: {
+        type: Boolean,
+        default: false
+    },
+    rating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
+    },
+    reviews: {
+        type: Number,
+        default: 0
+    },
+    collections: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Collection'
+    }],
+    analytics: {
+        views: { type: Number, default: 0 },
+        addToCart: { type: Number, default: 0 },
+        wishlist: { type: Number, default: 0 },
+        purchases: { type: Number, default: 0 }
+    }
+}, {
+    timestamps: true
+});
+
+module.exports = mongoose.model('Product', productSchema);

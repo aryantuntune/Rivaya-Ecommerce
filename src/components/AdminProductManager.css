@@ -1,0 +1,125 @@
+.product-manager {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.products-list-table {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.table-header,
+.table-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 1rem;
+    align-items: center;
+}
+
+.table-header {
+    background: var(--color-surface-subtle);
+    font-weight: 600;
+}
+
+.table-row {
+    border-top: 1px solid var(--color-border);
+}
+
+.product-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.product-cell img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.low-stock {
+    color: #c00;
+    font-weight: 600;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actions-cell button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+}
+
+.actions-cell button:hover {
+    color: var(--color-primary);
+}
+
+.actions-cell button.delete:hover {
+    color: #c00;
+}
+
+/* Edit Form Styles */
+.edit-form-container {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.variants-list {
+    background: var(--color-surface-subtle);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.variant-row {
+    display: grid;
+    grid-template-columns: 80px 80px 1fr 40px;
+    gap: 1rem;
+}
+
+.variant-row input {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+}
+
+.preview-img {
+    margin-top: 1rem;
+    height: 100px;
+    border-radius: var(--border-radius);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
