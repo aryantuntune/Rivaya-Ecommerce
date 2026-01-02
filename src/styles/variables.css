@@ -1,14 +1,17 @@
 :root {
   /* Colors */
-  --color-primary: #5e1e2d; /* Deep Burgundy */
+  --color-primary: #5e1e2d;
+  /* Deep Burgundy */
   --color-primary-dark: #3e121d;
-  --color-accent: #d4af37; /* Gold */
+  --color-accent: #d4af37;
+  /* Gold */
   --color-accent-light: #f3e5ab;
-  
-  --color-background: #fdfbf7; /* Warm Cream */
+
+  --color-background: #fdfbf7;
+  /* Warm Cream */
   --color-surface: #ffffff;
   --color-surface-subtle: #f7f3ed;
-  
+
   --color-text: #1a1a1a;
   --color-text-muted: #666666;
   --color-text-light: #999999;
@@ -32,7 +35,7 @@
 
   /* Layout */
   --container-max-width: 1440px;
-  --header-height: 80px;
+  --header-height: 64px;
   --border-radius: 4px;
   --border-radius-lg: 8px;
 

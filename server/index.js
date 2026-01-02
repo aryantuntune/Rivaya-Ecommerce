@@ -36,6 +36,7 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/collections', require('./routes/collectionRoutes'));
 app.use('/api/banners', require('./routes/bannerRoutes'));
+app.use('/api/complaints', require('./routes/complaintRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {

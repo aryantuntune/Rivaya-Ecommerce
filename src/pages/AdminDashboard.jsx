@@ -6,7 +6,7 @@ import AdminProductManager from '../components/AdminProductManager';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-    const { currentUser, products, orders, users, getStats, updateBanner, banner, heroBanners, toggleHeroBanner } = useAdmin();
+    const { currentUser, products, orders, users, getStats, updateBanner, banner, heroBanners, toggleHeroBanner, updateHeroBanner, complaints, resolveComplaint, addReview, deleteReview } = useAdmin();
     const [activeTab, setActiveTab] = useState('overview');
 
     if (!currentUser || currentUser.role !== 'admin') {
@@ -26,6 +26,8 @@ const AdminDashboard = () => {
                     <button className={activeTab === 'products' ? 'active' : ''} onClick={() => setActiveTab('products')}><Package size={18} /> Products & Inventory</button>
                     <button className={activeTab === 'orders' ? 'active' : ''} onClick={() => setActiveTab('orders')}><ShoppingBag size={18} /> Orders</button>
                     <button className={activeTab === 'banners' ? 'active' : ''} onClick={() => setActiveTab('banners')}><FileText size={18} /> Banners & Content</button>
+                    <button className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}><TrendingUp size={18} /> Reviews</button>
+                    <button className={activeTab === 'complaints' ? 'active' : ''} onClick={() => setActiveTab('complaints')}><Users size={18} /> Complaints</button>
                 </nav>
             </div>
 
@@ -103,18 +105,50 @@ const AdminDashboard = () => {
                                 <div className="banners-grid">
                                     {heroBanners.map(b => (
                                         <div key={b.id} className="banner-control-card">
-                                            <img src={b.image} alt={b.title} style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
-                                            <div className="banner-info">
-                                                <h4>{b.title}</h4>
-                                                <label className="toggle-switch">
+                                            <div className="banner-preview">
+                                                <img src={b.image} alt={b.title} />
+                                                <div className="banner-overlay">
+                                                    <span className={`status-dot ${b.enabled ? 'active' : ''}`}></span>
+                                                </div>
+                                            </div>
+                                            <div className="banner-edit-form">
+                                                <div className="form-group">
+                                                    <label>Title</label>
                                                     <input
-                                                        type="checkbox"
-                                                        checked={b.enabled}
-                                                        onChange={() => toggleHeroBanner(b.id)}
+                                                        type="text"
+                                                        value={b.title}
+                                                        onChange={(e) => updateHeroBanner(b.id, { title: e.target.value })}
                                                     />
-                                                    <span className="slider-round"></span>
-                                                    {b.enabled ? 'Active' : 'Disabled'}
-                                                </label>
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Subtitle</label>
+                                                    <input
+                                                        type="text"
+                                                        value={b.subtitle}
+                                                        onChange={(e) => updateHeroBanner(b.id, { subtitle: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Image URL</label>
+                                                    <input
+                                                        type="text"
+                                                        value={b.image}
+                                                        onChange={(e) => updateHeroBanner(b.id, { image: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label className="toggle-label">
+                                                        <span>Status</span>
+                                                        <label className="toggle-switch">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={b.enabled}
+                                                                onChange={() => toggleHeroBanner(b.id)}
+                                                            />
+                                                            <span className="slider-round"></span>
+                                                        </label>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -145,9 +179,135 @@ const AdminDashboard = () => {
                             </div>
                         </>
                     )}
+                    {activeTab === 'reviews' && (
+                        <>
+                            <h1>Review Management</h1>
+                            <div className="admin-section">
+                                <h2>All Product Reviews</h2>
+                                <div className="reviews-table-container">
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Reviewer</th>
+                                                <th>Rating</th>
+                                                <th>Comment</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {products.flatMap(p => (p.reviews || []).map(r => ({ ...r, productName: p.name, productId: p.id }))).map(review => (
+                                                <tr key={review.id}>
+                                                    <td>{review.productName}</td>
+                                                    <td>{review.user}</td>
+                                                    <td>{'★'.repeat(review.rating)}</td>
+                                                    <td className="review-comment">{review.comment}</td>
+                                                    <td>
+                                                        <button className="btn-icon delete" onClick={() => deleteReview(review.productId, review.id)}>Delete</button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {products.every(p => !p.reviews || p.reviews.length === 0) && (
+                                                <tr><td colSpan="5">No reviews found</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div className="admin-section">
+                                <h2>Add Managed Review</h2>
+                                <AddReviewForm products={products} onAdd={addReview} />
+                            </div>
+                        </>
+                    )}
+
+                    {activeTab === 'complaints' && (
+                        <>
+                            <h1>Customer Complaints</h1>
+                            <div className="admin-section">
+                                <div className="orders-table">
+                                    {/* Reusing orders-table class for consistency */}
+                                    {complaints.map(c => (
+                                        <div key={c.id} className="order-row">
+                                            <div>
+                                                <strong>{c.name}</strong>
+                                                <p className="text-muted">{c.email}</p>
+                                                <small>{new Date(c.date).toLocaleDateString()}</small>
+                                            </div>
+                                            <div style={{ flex: 2, margin: '0 2rem' }}>
+                                                <p><strong>Issue:</strong> {c.issue}</p>
+                                            </div>
+                                            <div>
+                                                <span className={`status-badge ${c.status === 'Resolved' ? 'delivered' : 'pending'}`}>
+                                                    {c.status}
+                                                </span>
+                                                {c.status !== 'Resolved' && (
+                                                    <button className="btn btn-outline btn-sm" onClick={() => resolveComplaint(c.id)} style={{ marginTop: '0.5rem' }}>
+                                                        Mark Resolved
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {complaints.length === 0 && <p className="no-data">No complaints found</p>}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
+    );
+};
+
+const AddReviewForm = ({ products, onAdd }) => {
+    const [selectedProduct, setSelectedProduct] = useState(products[0]?.id || '');
+    const [reviewer, setReviewer] = useState('');
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onAdd(parseInt(selectedProduct), {
+            user: reviewer,
+            rating: parseInt(rating),
+            comment,
+            verified: true
+        });
+        setReviewer('');
+        setComment('');
+        alert('Review added successfully');
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="add-review-form">
+            <div className="form-row">
+                <div className="form-group">
+                    <label>Select Product</label>
+                    <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)}>
+                        {products.map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="form-group">
+                    <label>Reviewer Name</label>
+                    <input type="text" value={reviewer} onChange={e => setReviewer(e.target.value)} required placeholder="e.g. Anjali K." />
+                </div>
+                <div className="form-group">
+                    <label>Rating</label>
+                    <select value={rating} onChange={e => setRating(e.target.value)}>
+                        {[5, 4, 3, 2, 1].map(r => <option key={r} value={r}>{r} Stars</option>)}
+                    </select>
+                </div>
+            </div>
+            <div className="form-group">
+                <label>Review Content</label>
+                <textarea rows="3" value={comment} onChange={e => setComment(e.target.value)} required placeholder="Write the review here..." />
+            </div>
+            <button type="submit" className="btn btn-primary">Add Review</button>
+        </form>
     );
 };
 

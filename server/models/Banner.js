@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
 const bannerSchema = new mongoose.Schema({
-    text: {
+    image: {
         type: String,
-        required: true
+        required: [true, 'Banner image is required']
     },
-    backgroundColor: {
+    title: {
         type: String,
-        default: '#ff0000'
+        required: [true, 'Banner title is required']
     },
-    textColor: {
+    subtitle: {
         type: String,
-        default: '#ffffff'
+        required: [true, 'Banner subtitle is required']
     },
     link: {
         type: String,
@@ -19,11 +19,11 @@ const bannerSchema = new mongoose.Schema({
     },
     enabled: {
         type: Boolean,
-        default: false
+        default: true
     },
-    countdown: {
-        enabled: { type: Boolean, default: false },
-        endDate: Date
+    order: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true

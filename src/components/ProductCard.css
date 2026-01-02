@@ -1,17 +1,19 @@
 .product-card {
     position: relative;
     transition: transform var(--transition-fast);
+    border: 1px solid var(--color-border);
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
 }
 
 .card-image-wrapper {
     position: relative;
-    aspect-ratio: 3/4;
+    aspect-ratio: 2/3;
+    /* Taller rectangular aspect ratio */
     overflow: hidden;
-    border-radius: var(--border-radius);
     background-color: var(--color-surface-subtle);
     cursor: pointer;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    /* Added border as requested */
+    /* Border moved to card container or kept subtle here */
 }
 
 .card-image {

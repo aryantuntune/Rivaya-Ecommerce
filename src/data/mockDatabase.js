@@ -6,7 +6,7 @@ export const mockProducts = [
         category: "Short Kurti",
         price: 1299,
         originalPrice: 1999,
-        images: ["https://images.unsplash.com/photo-1583391733958-e02376903394?q=80&w=2070&auto=format&fit=crop"],
+        images: ["/images/cat_women.png"],
         variants: [
             { size: 'S', stock: 5, sku: 'RIV-MBK-S' },
             { size: 'M', stock: 8, sku: 'RIV-MBK-M' },
@@ -27,7 +27,7 @@ export const mockProducts = [
         category: "Ethnic Sets",
         price: 2499,
         originalPrice: 3500,
-        images: ["https://images.unsplash.com/photo-1605906233513-57c5a013329f?q=80&w=1887&auto=format&fit=crop"],
+        images: ["/images/cat_couple.png"],
         variants: [
             { size: 'S', stock: 2, sku: 'RIV-RBPS-S' },
             { size: 'M', stock: 5, sku: 'RIV-RBPS-M' },
@@ -48,7 +48,7 @@ export const mockProducts = [
         category: "Anarkali",
         price: 3999,
         originalPrice: 5000,
-        images: ["https://images.unsplash.com/photo-1610030469450-40af9250af7a?q=80&w=2070&auto=format&fit=crop"],
+        images: ["/images/hero_anarkali.png"],
         variants: [
             { size: 'S', stock: 0, sku: 'RIV-GHA-S' },
             { size: 'M', stock: 2, sku: 'RIV-GHA-M' },
@@ -68,7 +68,7 @@ export const mockProducts = [
         category: "Sarees",
         price: 4500,
         originalPrice: 6000,
-        images: ["https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=1887&auto=format&fit=crop"],
+        images: ["/images/hero_saree.png"],
         variants: [
             { size: 'One Size', stock: 15, sku: 'RIV-CSS-OS' }
         ],
@@ -86,7 +86,7 @@ export const mockProducts = [
         category: "Palazzo Sets",
         price: 1899,
         originalPrice: 2800,
-        images: ["https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=1887&auto=format&fit=crop"],
+        images: ["/images/cat_accessories.png"],
         variants: [
             { size: 'S', stock: 10, sku: 'RIV-EPS-S' },
             { size: 'M', stock: 12, sku: 'RIV-EPS-M' },
@@ -107,7 +107,7 @@ export const mockProducts = [
         category: "Short Kurti",
         price: 1599,
         originalPrice: 2200,
-        images: ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=1887&auto=format&fit=crop"],
+        images: ["/images/cat_women.png"],
         variants: [
             { size: 'S', stock: 6, sku: 'RIV-ICK-S' },
             { size: 'M', stock: 9, sku: 'RIV-ICK-M' },
@@ -128,7 +128,7 @@ export const mockProducts = [
         category: "Lehenga",
         price: 5999,
         originalPrice: 8500,
-        images: ["https://images.unsplash.com/photo-1583391733975-b8c1b5b3a4cf?q=80&w=1887&auto=format&fit=crop"],
+        images: ["/images/hero_lehenga.png"],
         variants: [
             { size: 'S', stock: 2, sku: 'RIV-PBL-S' },
             { size: 'M', stock: 1, sku: 'RIV-PBL-M' },
@@ -141,7 +141,6 @@ export const mockProducts = [
         collections: [],
         analytics: { views: 3456, addToCart: 234, wishlist: 145, purchases: 89 }
     },
-    // Adding Long Kurti specifically for requirements
     {
         id: 8,
         name: "Maroon Long Kurti",
@@ -149,7 +148,7 @@ export const mockProducts = [
         category: "Long Kurti",
         price: 2199,
         originalPrice: 3200,
-        images: ["https://images.unsplash.com/photo-1583391733981-5ff4d0ae9c91?q=80&w=1887&auto=format&fit=crop"],
+        images: ["/images/hero_anarkali.png"],
         variants: [
             { size: 'S', stock: 4, sku: 'RIV-MLK-S' },
             { size: 'M', stock: 6, sku: 'RIV-MLK-M' },
@@ -170,7 +169,7 @@ export const mockCollections = [
         id: 1,
         name: "Summer Collection 2025",
         description: "Light and breezy ethnic wear perfect for summer festivities",
-        heroImage: "https://images.unsplash.com/photo-1583391733958-e02376903394?q=80&w=2070&auto=format&fit=crop",
+        heroImage: "/images/cat_women.png",
         productIds: [1, 5, 6],
         isActive: true,
         createdAt: new Date('2025-01-01')
@@ -179,7 +178,7 @@ export const mockCollections = [
         id: 2,
         name: "Wedding Collection",
         description: "Exquisite pieces for your special day",
-        heroImage: "https://images.unsplash.com/photo-1583391733975-b8c1b5b3a4cf?q=80&w=1887&auto=format&fit=crop",
+        heroImage: "/images/cat_couple.png",
         productIds: [3, 4, 7],
         isActive: true,
         createdAt: new Date('2025-01-15')
@@ -216,15 +215,15 @@ export const mockSaleBanner = {
 export const mockBanners = [
     {
         id: 1,
-        image: "https://images.unsplash.com/photo-1583391733958-e02376903394?q=80&w=2070&auto=format&fit=crop",
+        image: "/images/hero_lehenga.png",
         title: "Modern Ethnic Wear",
-        subtitle: "Discover our latest collection of contemporary kurtis",
+        subtitle: "Discover our latest collection of contemporary lehengas",
         link: "/shop",
         enabled: true
     },
     {
         id: 2,
-        image: "https://images.unsplash.com/photo-1583391733975-b8c1b5b3a4cf?q=80&w=1887&auto=format&fit=crop",
+        image: "/images/hero_saree.png",
         title: "Festive Elegance",
         subtitle: "Shine bright this wedding season",
         link: "/collections",
@@ -232,7 +231,7 @@ export const mockBanners = [
     },
     {
         id: 3,
-        image: "https://images.unsplash.com/photo-1610030469450-40af9250af7a?q=80&w=2070&auto=format&fit=crop",
+        image: "/images/hero_anarkali.png",
         title: "Premium Anarkalis",
         subtitle: "Flowy silhouettes for every occasion",
         link: "/shop?category=Anarkali",
@@ -240,12 +239,31 @@ export const mockBanners = [
     },
     {
         id: 4,
-        image: "https://images.unsplash.com/photo-1628143242630-9e6727284725?q=80&w=2070&auto=format&fit=crop",
-        title: "Handcrafted Sarees",
-        subtitle: "Timeless drapes for the modern woman",
-        link: "/shop?category=Sarees",
+        image: "/images/cat_accessories.png",
+        title: "Handcrafted Jewelry",
+        subtitle: "Complete your look with antique gold",
+        link: "/shop?category=Accessories",
         enabled: true
     }
 ];
 
 export const mockOrders = [];
+
+export const mockComplaints = [
+    {
+        id: 1,
+        name: "Rahul Verma",
+        email: "rahul@example.com",
+        issue: "I received a damaged product.",
+        date: "2024-01-20",
+        status: "Pending"
+    },
+    {
+        id: 2,
+        name: "Sneha Gupta",
+        email: "sneha@example.com",
+        issue: "Size exchange request not processed yet.",
+        date: "2024-01-22",
+        status: "Resolved"
+    }
+];

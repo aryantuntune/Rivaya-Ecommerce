@@ -1,75 +1,64 @@
-
 import React from 'react';
+import '../styles/global.css';
 import './AboutUs.css';
 
 const AboutUs = () => {
     return (
-        <div className="about-page">
+        <div className="about-us-page">
             <div className="container">
+                {/* Hero Section */}
                 <div className="about-hero">
-                    <h1>About Rivaya</h1>
-                    <p className="tagline">Wear Your Story</p>
+                    <h1>Our Story</h1>
+                    <p className="subtitle">Weaving traditions into modern silhouettes.</p>
                 </div>
 
-                <section className="about-section">
-                    <h2>Our Story</h2>
-                    <p>
-                        RIVAYA is a contemporary Indian clothing brand that celebrates the timeless elegance of Indian wear
-                        while bringing in modern aesthetics for today’s generation. Rooted in cultural heritage yet designed
-                        with a contemporary touch, RIVAYA creates a unique identity in the Indian ethnic wear market.
-                    </p>
-                    <p>
-                        The brand primarily focuses on women’s wear – especially short and long kurtas.
-                    </p>
-                </section>
-
-                <section className="about-section">
-                    <h2>Brand Essence</h2>
-                    <ul>
-                        <li><strong>Name:</strong> RIVAYA – inspired by grace, flow, and timeless charm, much like a river that carries heritage forward while embracing change.</li>
-                        <li><strong>Core Values:</strong> Elegance, Authenticity, Versatility, Quality.</li>
-                        <li><strong>Positioning:</strong> A modern Indian wear brand that is both rooted in tradition and adapted for contemporary living.</li>
-                    </ul>
-                </section>
-
-                <section className="about-section">
-                    <h2>Our Mission</h2>
-                    <p>
-                        To empower women with clothing that makes them feel confident, beautiful, and connected to their roots.
-                        We believe in sustainable fashion, fair trade practices, and supporting local artisan communities.
-                    </p>
-                </section>
-
-                <section className="about-section">
-                    <h2>Why Choose Us</h2>
-                    <div className="features-grid">
-                        <div className="feature">
-                            <h3>🎨 Authentic Designs</h3>
-                            <p>Traditional patterns with modern silhouettes</p>
+                {/* Content Sections */}
+                <div className="about-content">
+                    <div className="about-section">
+                        <div className="text-content">
+                            <h2>The Rivaya Vision</h2>
+                            <p>
+                                Founded with a passion for Indian textiles and a vision to make ethnic wear
+                                accessible and contemporary, Rivaya stands at the intersection of tradition and modernity.
+                                We believe that every piece of clothing tells a story - a story of the artisan who crafted it,
+                                the heritage it represents, and the woman who wears it.
+                            </p>
                         </div>
-                        <div className="feature">
-                            <h3>✨ Premium Quality</h3>
-                            <p>Finest fabrics and meticulous craftsmanship</p>
-                        </div>
-                        <div className="feature">
-                            <h3>🌿 Sustainable</h3>
-                            <p>Eco-friendly practices and ethical sourcing</p>
-                        </div>
-                        <div className="feature">
-                            <h3>💝 Customer First</h3>
-                            <p>Dedicated support and hassle-free returns</p>
+                        <div className="image-content">
+                            <img src="/images/hero_saree.png" alt="Rivaya Vision" />
                         </div>
                     </div>
-                </section>
 
-                <section className="about-section">
-                    <h2>Contact Us</h2>
-                    <div className="contact-info">
-                        <p><strong>Email:</strong> support@vrishtikalaa.com</p>
-                        <p><strong>Phone:</strong> +91 98765 43210</p>
-                        <p><strong>Address:</strong> Mumbai, Maharashtra, India</p>
+                    <div className="about-section reverse">
+                        <div className="text-content">
+                            <h2>Craftsmanship & Quality</h2>
+                            <p>
+                                We partner directly with artisans across India to bring you authentic handcrafted fabrics.
+                                From the block prints of Jaipur to the silks of Banaras, every Rivaya garment is a testament
+                                to quality and skill. We are committed to sustainable practices and fair trade.
+                            </p>
+                        </div>
+                        <div className="image-content">
+                            <img src="/images/hero_lehenga.png" alt="Craftsmanship" />
+                        </div>
                     </div>
-                </section>
+                </div>
+
+                {/* Values */}
+                <div className="company-values">
+                    <div className="value-card">
+                        <h3>Authenticity</h3>
+                        <p>Genuine fabrics and traditional techniques.</p>
+                    </div>
+                    <div className="value-card">
+                        <h3>Elegance</h3>
+                        <p>Timeless designs that transcend trends.</p>
+                    </div>
+                    <div className="value-card">
+                        <h3>Empowerment</h3>
+                        <p>Supporting artisans and confident women.</p>
+                    </div>
+                </div>
             </div>
         </div>
     );

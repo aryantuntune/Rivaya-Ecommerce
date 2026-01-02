@@ -18,7 +18,7 @@
 
 .cat-img-wrapper {
     position: relative;
-    height: 400px;
+    height: 320px;
     overflow: hidden;
     border-radius: var(--border-radius);
     margin-bottom: 1rem;

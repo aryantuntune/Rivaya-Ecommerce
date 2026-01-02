@@ -1,115 +1,59 @@
 const Banner = require('../models/Banner');
 
-// @desc    Get active banner
-// @route   GET /api/banners/active
-// @access  Public
-exports.getActiveBanner = async (req, res) => {
-    try {
-        const banner = await Banner.findOne({ enabled: true }).sort('-createdAt');
-
-        res.status(200).json({
-            success: true,
-            data: banner
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
-
-// @desc    Get all banners (Admin)
+// @desc    Get all banners
 // @route   GET /api/banners
-// @access  Private/Admin
-exports.getAllBanners = async (req, res) => {
+// @access  Public
+exports.getBanners = async (req, res) => {
     try {
-        const banners = await Banner.find().sort('-createdAt');
-
-        res.status(200).json({
-            success: true,
-            count: banners.length,
-            data: banners
-        });
+        const banners = await Banner.find({ enabled: true }).sort({ order: 1 });
+        res.status(200).json({ success: true, count: banners.length, data: banners });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
 
-// @desc    Create banner (Admin)
+// @desc    Create banner
 // @route   POST /api/banners
 // @access  Private/Admin
 exports.createBanner = async (req, res) => {
     try {
         const banner = await Banner.create(req.body);
-
-        res.status(201).json({
-            success: true,
-            data: banner
-        });
+        res.status(201).json({ success: true, data: banner });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
-// @desc    Update banner (Admin)
+// @desc    Update banner
 // @route   PUT /api/banners/:id
 // @access  Private/Admin
 exports.updateBanner = async (req, res) => {
     try {
-        const banner = await Banner.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
-        );
-
+        const banner = await Banner.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
         if (!banner) {
-            return res.status(404).json({
-                success: false,
-                message: 'Banner not found'
-            });
+            return res.status(404).json({ success: false, message: 'Banner not found' });
         }
-
-        res.status(200).json({
-            success: true,
-            data: banner
-        });
+        res.status(200).json({ success: true, data: banner });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
-// @desc    Delete banner (Admin)
+// @desc    Delete banner
 // @route   DELETE /api/banners/:id
 // @access  Private/Admin
 exports.deleteBanner = async (req, res) => {
     try {
-        const banner = await Banner.findByIdAndDelete(req.params.id);
-
+        const banner = await Banner.findById(req.params.id);
         if (!banner) {
-            return res.status(404).json({
-                success: false,
-                message: 'Banner not found'
-            });
+            return res.status(404).json({ success: false, message: 'Banner not found' });
         }
-
-        res.status(200).json({
-            success: true,
-            data: {}
-        });
+        await banner.deleteOne();
+        res.status(200).json({ success: true, data: {} });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        res.status(400).json({ success: false, message: error.message });
     }
 };

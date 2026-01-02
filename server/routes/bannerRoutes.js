@@ -1,7 +1,6 @@
 const express = require('express');
 const {
-    getActiveBanner,
-    getAllBanners,
+    getBanners,
     createBanner,
     updateBanner,
     deleteBanner
@@ -10,11 +9,9 @@ const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/active', getActiveBanner);
-
 router
     .route('/')
-    .get(protect, authorize('admin'), getAllBanners)
+    .get(getBanners)
     .post(protect, authorize('admin'), createBanner);
 
 router

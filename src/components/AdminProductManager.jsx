@@ -152,14 +152,36 @@ const AdminProductManager = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Image URL</label>
-                            <input
-                                type="text"
-                                value={editProduct.images[0]}
-                                onChange={(e) => setEditProduct({ ...editProduct, images: [e.target.value] })}
-                                placeholder="https://..."
-                            />
-                            {editProduct.images[0] && <img src={editProduct.images[0]} className="preview-img" />}
+                            <label>Product Image</label>
+                            <div className="image-upload-container">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                setEditProduct({ ...editProduct, images: [reader.result] });
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                    className="file-input"
+                                />
+                                {editProduct.images[0] && (
+                                    <div className="image-preview">
+                                        <img src={editProduct.images[0]} alt="Preview" />
+                                        <button
+                                            type="button"
+                                            className="btn-icon remove-image"
+                                            onClick={() => setEditProduct({ ...editProduct, images: [''] })}
+                                        >
+                                            <Trash size={14} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="form-actions">

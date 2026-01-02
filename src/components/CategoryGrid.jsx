@@ -8,28 +8,28 @@ const CategoryGrid = () => {
         {
             id: 1,
             title: "Women",
-            image: "https://images.unsplash.com/photo-1583391733958-e02376903394?q=80&w=2070&auto=format&fit=crop",
+            image: "/images/cat_women.png",
             link: "/shop?category=Women",
             locked: false
         },
         {
             id: 2,
             title: "Couple",
-            image: "https://images.unsplash.com/photo-1594913780356-e442963d8e31?q=80&w=1887&auto=format&fit=crop",
+            image: "/images/cat_couple.png",
             link: "#",
             locked: true
         },
         {
             id: 3,
             title: "Men",
-            image: "https://images.unsplash.com/photo-1589810635657-232948472d98?q=80&w=1888&auto=format&fit=crop",
+            image: "/images/cat_men.png",
             link: "#",
             locked: true
         },
         {
             id: 4,
             title: "Accessories",
-            image: "https://images.unsplash.com/photo-1551028717-b77c35597ea9?q=80&w=1887&auto=format&fit=crop",
+            image: "/images/cat_accessories.png",
             link: "#",
             locked: true
         }

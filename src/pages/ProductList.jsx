@@ -1,22 +1,29 @@
 import React, { useState, useMemo } from 'react';
+import { useAdmin } from '../context/AdminContext';
 import ProductCard from '../components/ProductCard';
-import { products, categories } from '../data/products';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import '../styles/global.css';
 import './ProductList.css';
 
 const ProductList = () => {
+    const { products, collections } = useAdmin();
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
+    const categoryParam = searchParams.get('category');
+    const collectionParam = searchParams.get('collection');
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState(categoryParam ? [categoryParam] : []);
+    const [selectedCollections, setSelectedCollections] = useState(collectionParam ? [collectionParam] : []);
     const [priceRange, setPriceRange] = useState([0, 10000]);
     const [sortBy, setSortBy] = useState('featured');
 
-    // Get unique categories and colors/sizes
-    const uniqueCategories = ['Short Kurti', 'Long Kurti', 'Backless Designs', 'Ethnic Sets', 'Anarkali', 'Sarees', 'Lehenga', 'Palazzo Sets'];
+    // Get unique categories dynamically from products
+    const uniqueCategories = useMemo(() => {
+        const cats = products.map(p => p.category);
+        return [...new Set(cats)];
+    }, [products]);
 
     // Filter and sort products
     const filteredProducts = useMemo(() => {
@@ -33,6 +40,21 @@ const ProductList = () => {
         // Category filter
         if (selectedCategories.length > 0) {
             filtered = filtered.filter(p => selectedCategories.includes(p.category));
+        }
+
+        // Collection filter (New)
+        if (selectedCollections.length > 0) {
+            // Find active collections matching selection
+            const activeCollectionIds = collections
+                .filter(c => selectedCollections.includes(c.name)) // Assuming name match or ID
+                .flatMap(c => c.productIds);
+
+            // Filter products that are part of these collections
+            // Or if collection is stored on product itself, adapt here.
+            // Using ID map from mockCollections:
+            if (activeCollectionIds.length > 0) {
+                filtered = filtered.filter(p => activeCollectionIds.includes(p.id));
+            }
         }
 
         // Price filter
@@ -57,7 +79,7 @@ const ProductList = () => {
         }
 
         return filtered;
-    }, [searchQuery, selectedCategories, priceRange, sortBy]);
+    }, [searchQuery, selectedCategories, selectedCollections, priceRange, sortBy, products, collections]);
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -82,8 +104,17 @@ const ProductList = () => {
         );
     };
 
+    const toggleCollection = (collectionName) => {
+        setSelectedCollections(prev =>
+            prev.includes(collectionName)
+                ? prev.filter(c => c !== collectionName)
+                : [...prev, collectionName]
+        );
+    };
+
     const clearFilters = () => {
         setSelectedCategories([]);
+        setSelectedCollections([]);
         setPriceRange([0, 10000]);
     };
 
@@ -106,17 +137,33 @@ const ProductList = () => {
                             </button>
                         </div>
 
+                        {/* Collections Filter (New) */}
+                        <div className="filter-section">
+                            <h4>Collections</h4>
+                            {collections.length > 0 ? collections.map(col => (
+                                <label key={col.id} className="filter-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedCollections.includes(col.name)}
+                                        onChange={() => toggleCollection(col.name)}
+                                    />
+                                    <span>{col.name}</span>
+                                </label>
+                            )) : <p className="text-muted">No collections found</p>}
+                        </div>
+
+
                         {/* Category Filter */}
                         <div className="filter-section">
                             <h4>Category</h4>
-                            {categories.map(cat => (
-                                <label key={cat.id} className="filter-checkbox">
+                            {uniqueCategories.map(cat => (
+                                <label key={cat} className="filter-checkbox">
                                     <input
                                         type="checkbox"
-                                        checked={selectedCategories.includes(cat.name)}
-                                        onChange={() => toggleCategory(cat.name)}
+                                        checked={selectedCategories.includes(cat)}
+                                        onChange={() => toggleCategory(cat)}
                                     />
-                                    <span>{cat.name} ({cat.count})</span>
+                                    <span>{cat}</span>
                                 </label>
                             ))}
                         </div>
@@ -168,7 +215,7 @@ const ProductList = () => {
                                 <span className="product-count">
                                     Showing {paginatedProducts.length} of {filteredProducts.length} Products
                                 </span>
-                                {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 10000) && (
+                                {(selectedCategories.length > 0 || selectedCollections.length > 0 || priceRange[0] > 0 || priceRange[1] < 10000) && (
                                     <button className="clear-filters-mobile" onClick={clearFilters}>
                                         Clear Filters
                                     </button>

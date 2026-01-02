@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { mockProducts, mockCollections, mockUsers, mockSaleBanner, mockBanners, mockOrders } from '../data/mockDatabase';
 
 const AdminContext = createContext();
+
+// Using localhost for dev. In prod this should be relative or env var.
+const API_URL = 'http://localhost:5000/api';
 
 export const useAdmin = () => {
     const context = useContext(AdminContext);
@@ -12,246 +14,299 @@ export const useAdmin = () => {
 };
 
 export const AdminProvider = ({ children }) => {
-    // Load data from localStorage or use mock data
-    const [products, setProducts] = useState(() => {
-        const saved = localStorage.getItem('admin_products');
-        return saved ? JSON.parse(saved) : mockProducts;
+    // State
+    const [products, setProducts] = useState([]);
+    const [complaints, setComplaints] = useState([]);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('token') || null);
+
+    // Legacy/Mock states (Kept only for UI compatibility, data from API)
+    const [orders, setOrders] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [collections, setCollections] = useState([]);
+    const [saleBanner, setSaleBanner] = useState({
+        text: "🎉 SALE TODAY! Get 50% OFF on Selected Items - Limited Time Only!",
+        backgroundColor: "#5e1e2d",
+        textColor: "#ffffff",
+        link: "/shop",
+        enabled: true
     });
+    const [heroBanners, setHeroBanners] = useState([]);
 
-    const [collections, setCollections] = useState(() => {
-        const saved = localStorage.getItem('admin_collections');
-        return saved ? JSON.parse(saved) : mockCollections;
-    });
-
-    const [users, setUsers] = useState(() => {
-        const saved = localStorage.getItem('admin_users');
-        return saved ? JSON.parse(saved) : mockUsers;
-    });
-
-    const [saleBanner, setSaleBanner] = useState(() => { // Top sticky banner
-        const saved = localStorage.getItem('admin_sale_banner');
-        return saved ? JSON.parse(saved) : mockSaleBanner;
-    });
-
-    const [heroBanners, setHeroBanners] = useState(() => { // Hero sliders
-        const saved = localStorage.getItem('admin_hero_banners');
-        return saved ? JSON.parse(saved) : mockBanners;
-    });
-
-    const [orders, setOrders] = useState(() => {
-        const saved = localStorage.getItem('admin_orders');
-        return saved ? JSON.parse(saved) : mockOrders;
-    });
-
-    const [currentUser, setCurrentUser] = useState(() => {
-        const saved = localStorage.getItem('currentUser');
-        return saved ? JSON.parse(saved) : null;
-    });
-
-    // Save to localStorage whenever data changes
+    // --- Authentication ---
     useEffect(() => {
-        localStorage.setItem('admin_products', JSON.stringify(products));
-    }, [products]);
-
-    useEffect(() => {
-        localStorage.setItem('admin_collections', JSON.stringify(collections));
-    }, [collections]);
-
-    useEffect(() => {
-        localStorage.setItem('admin_users', JSON.stringify(users));
-    }, [users]);
-
-    useEffect(() => {
-        localStorage.setItem('admin_sale_banner', JSON.stringify(saleBanner));
-    }, [saleBanner]);
-
-    useEffect(() => {
-        localStorage.setItem('admin_hero_banners', JSON.stringify(heroBanners));
-    }, [heroBanners]);
-
-    useEffect(() => {
-        localStorage.setItem('admin_orders', JSON.stringify(orders));
-    }, [orders]);
-
-    useEffect(() => {
-        if (currentUser) {
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        if (token) {
+            localStorage.setItem('token', token);
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) setCurrentUser(JSON.parse(savedUser));
         } else {
+            localStorage.removeItem('token');
             localStorage.removeItem('currentUser');
+            setCurrentUser(null);
         }
-    }, [currentUser]);
+    }, [token]);
 
-    // Auth functions
-    const login = (email, password) => {
-        const user = users.find(u => u.email === email && u.password === password);
-        if (user) {
-            setCurrentUser(user);
-            return { success: true, user };
+    const login = async (email, password) => {
+        try {
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setToken(data.token);
+                setCurrentUser(data.user);
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                return { success: true, user: data.user };
+            } else {
+                return { success: false, message: data.message };
+            }
+        } catch (error) {
+            console.error("Login Error:", error);
+            return { success: false, message: "Server connection failed" };
         }
-        return { success: false, message: 'Invalid credentials' };
     };
 
-    const register = (userData) => {
-        const exists = users.find(u => u.email === userData.email);
-        if (exists) {
-            return { success: false, message: 'User already exists' };
+    const register = async (userData) => {
+        try {
+            const res = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            const data = await res.json();
+            if (data.success) {
+                setToken(data.token);
+                setCurrentUser(data.user);
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                return { success: true, user: data.user };
+            } else {
+                return { success: false, message: data.message };
+            }
+        } catch (error) {
+            console.error("Register Error:", error);
+            return { success: false, message: "Server connection failed" };
         }
-        const newUser = {
-            id: users.length + 1,
-            ...userData,
-            role: 'customer',
-            addresses: [],
-            wishlist: [],
-            cart: []
-        };
-        setUsers([...users, newUser]);
-        setCurrentUser(newUser);
-        return { success: true, user: newUser };
     };
 
     const logout = () => {
+        setToken(null);
         setCurrentUser(null);
     };
 
-    // Product functions
-    const addProduct = (product) => {
-        const newProduct = {
-            ...product,
-            id: products.length + 1,
-            analytics: { views: 0, addToCart: 0, wishlist: 0, purchases: 0 }
-        };
-        setProducts([...products, newProduct]);
-        return newProduct;
+    // --- Data Fetching ---
+    const fetchProducts = async () => {
+        try {
+            const res = await fetch(`${API_URL}/products`);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                // Ensure ID consistency if needed, Mongo uses _id
+                const mappedProducts = data.data.map(p => ({ ...p, id: p._id }));
+                setProducts(mappedProducts);
+            }
+        } catch (error) {
+            console.error("Failed to fetch products", error);
+        }
     };
 
-    const updateProduct = (id, updates) => {
-        setProducts(products.map(p => p.id === id ? { ...p, ...updates } : p));
+    const fetchComplaints = async () => {
+        try {
+            const res = await fetch(`${API_URL}/complaints`);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setComplaints(data.map(c => ({ ...c, id: c._id })));
+            }
+        } catch (error) {
+            console.error("Failed to fetch complaints", error);
+        }
     };
 
-    const deleteProduct = (id) => {
-        setProducts(products.filter(p => p.id !== id));
+    const fetchBanners = async () => {
+        try {
+            const res = await fetch(`${API_URL}/banners`);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                // Ensure ID consistency
+                setHeroBanners(data.data.map(b => ({ ...b, id: b._id })));
+            }
+        } catch (error) {
+            console.error("Failed to fetch banners", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts();
+        fetchComplaints();
+        fetchBanners();
+    }, []);
+
+    // --- Products ---
+    const addProduct = async (productData) => {
+        try {
+            const res = await fetch(`${API_URL}/products`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(productData)
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                const newProduct = { ...data.data, id: data.data._id };
+                setProducts([...products, newProduct]);
+                return newProduct;
+            }
+        } catch (error) {
+            console.error("Add Product Error", error);
+        }
+    };
+
+    const updateProduct = async (id, updates) => {
+        try {
+            const res = await fetch(`${API_URL}/products/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updates)
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                fetchProducts();
+            }
+        } catch (error) {
+            console.error("Update Product Error", error);
+        }
+    };
+
+    const deleteProduct = async (id) => {
+        try {
+            const res = await fetch(`${API_URL}/products/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                setProducts(products.filter(p => p.id !== id && p._id !== id));
+            }
+        } catch (error) {
+            console.error("Delete Product Error", error);
+        }
     };
 
     const trackProductInteraction = (productId, type) => {
-        setProducts(products.map(p => {
-            if (p.id === productId) {
-                return {
-                    ...p,
-                    analytics: {
-                        ...p.analytics,
-                        [type]: (p.analytics[type] || 0) + 1
-                    }
-                };
-            }
-            return p;
-        }));
-    };
-
-    // Collection functions
-    const addCollection = (collection) => {
-        const newCollection = {
-            ...collection,
-            id: collections.length + 1,
-            createdAt: new Date()
-        };
-        setCollections([...collections, newCollection]);
-        return newCollection;
-    };
-
-    const updateCollection = (id, updates) => {
-        setCollections(collections.map(c => c.id === id ? { ...c, ...updates } : c));
-    };
-
-    const deleteCollection = (id) => {
-        setCollections(collections.filter(c => c.id !== id));
-    };
-
-    // Banner functions
-    const updateSaleBanner = (updates) => {
-        setSaleBanner({ ...saleBanner, ...updates });
-    };
-
-    const toggleHeroBanner = (id) => {
-        setHeroBanners(heroBanners.map(b =>
-            b.id === id ? { ...b, enabled: !b.enabled } : b
-        ));
-    };
-
-    // Order functions
-    const createOrder = (orderData) => {
-        const newOrder = {
-            ...orderData,
-            id: orders.length + 1,
-            createdAt: new Date(),
-            orderStatus: 'Pending',
-            paymentStatus: 'Pending'
-        };
-        setOrders([...orders, newOrder]);
-
-        // Update product analytics
-        orderData.items.forEach(item => {
-            trackProductInteraction(item.product.id, 'purchases');
+        fetch(`${API_URL}/products/${productId}/track`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type })
         });
-
-        return newOrder;
     };
 
-    const updateOrderStatus = (orderId, status) => {
-        setOrders(orders.map(o =>
-            o.id === orderId ? { ...o, ...status } : o
-        ));
+    // --- Complaints ---
+    const addComplaint = async (complaintData) => {
+        try {
+            const res = await fetch(`${API_URL}/complaints`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(complaintData)
+            });
+            if (res.ok) {
+                const newComplaint = await res.json();
+                setComplaints([newComplaint, ...complaints]);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Add Complaint Error", error);
+            return false;
+        }
     };
 
+    const resolveComplaint = async (id) => {
+        try {
+            const res = await fetch(`${API_URL}/complaints/${id}/resolve`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            if (res.ok) {
+                const updated = await res.json();
+                setComplaints(complaints.map(c => c._id === id ? updated : c));
+            }
+        } catch (error) {
+            console.error("Resolve Complaint Error", error);
+        }
+    };
+
+    // --- Reviews ---
+    const addReview = (productId, review) => {
+        console.log("Add review via API not implemented yet");
+    };
+    const deleteReview = (productId, reviewId) => { };
+
+
+    // --- Other Mock/Legacy Functions ---
     const getStats = () => {
         const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-        const totalOrders = orders.length;
-        const totalProducts = products.length;
-        const totalCustomers = users.filter(u => u.role === 'customer').length;
-
         return {
             totalRevenue,
-            totalOrders,
-            totalProducts,
-            totalCustomers
+            totalOrders: orders.length,
+            totalProducts: products.length,
+            totalCustomers: users.length
         };
     };
 
+    // Stubs
+    const addCollection = () => { };
+    const updateCollection = () => { };
+    const deleteCollection = () => { };
+    const updateBanner = () => { };
+    const updateHeroBanner = () => { };
+    const toggleHeroBanner = () => { };
+    const createOrder = () => { };
+    const updateOrderStatus = () => { };
+
     const value = {
-        // Data
         products,
+        complaints,
+        currentUser,
         collections,
         users,
-        banner: saleBanner, // Keep 'banner' key for compatibility but link to saleBanner
+        banner: saleBanner,
         heroBanners,
         orders,
-        currentUser,
 
-        // Auth
         login,
         register,
         logout,
 
-        // Products
         addProduct,
         updateProduct,
         deleteProduct,
         trackProductInteraction,
 
-        // Collections
-        addCollection,
-        updateCollection,
-        deleteCollection,
+        addComplaint,
+        resolveComplaint,
 
-        // Banner
-        updateBanner: updateSaleBanner,
-        toggleHeroBanner,
+        addReview,
+        deleteReview,
 
-        // Orders
-        createOrder,
-        updateOrderStatus,
+        getStats,
 
-        // Stats
-        getStats
+        addCollection, updateCollection, deleteCollection,
+        updateBanner, updateHeroBanner, toggleHeroBanner,
+        createOrder, updateOrderStatus
     };
 
     return (

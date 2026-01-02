@@ -22,23 +22,22 @@ const Home = () => {
       <HeroSlider />
 
       {/* 2. Features Display (Updated text) */}
+      {/* 2. Features Display (Updated text from PDF) */}
       <div className="features-bar">
-        <div className="feature-item">
-          <Truck size={24} />
-          <span>Free Shipping on 999</span>
-        </div>
-        <div className="feature-item">
-          <Headset size={24} />
-          <span>24/7 Support</span>
-        </div>
-        <div className="feature-item">
-          <ShieldCheck size={24} />
-          <span>100% Authentic Quality</span>
-        </div>
-        <a href="/complaint" className="feature-item link-item">
-          <MessageCircle size={24} />
-          <span>#riyavahelp (Contact Us)</span>
-        </a>
+        {[
+          { icon: <Truck size={24} />, text: 'Free Shipping on 999', sub: 'On orders above ₹999' },
+          { icon: <ShieldCheck size={24} />, text: '100% Authentic', sub: 'Guaranteed duality' },
+          { icon: <Headset size={24} />, text: '24/7 Support', sub: 'Dedicated customer care' },
+          { icon: <MessageCircle size={24} />, text: 'Easy Returns', sub: '7 days return policy' },
+        ].map((feature, idx) => (
+          <div key={idx} className="feature-item">
+            <div className="feature-icon-wrapper">{feature.icon}</div>
+            <div className="feature-text">
+              <span className="feature-title">{feature.text}</span>
+              <span className="feature-sub">{feature.sub}</span>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* 3. Shop by Category (Locks implemented) */}
