@@ -82,7 +82,7 @@ const ProductDetails = () => {
                                     />
                                 ))}
                             </div>
-                            <span className="rating-count">({product.reviews} Reviews)</span>
+                            <span className="rating-count">({product.reviews?.length || 0} Reviews)</span>
                         </div>
 
                         <div className="product-price">

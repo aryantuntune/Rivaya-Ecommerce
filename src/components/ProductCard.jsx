@@ -93,7 +93,7 @@ const ProductCard = ({ product }) => {
                                 />
                             ))}
                         </div>
-                        <span className="rating-text">({product.reviews})</span>
+                        <span className="rating-text">({product.reviews?.length || 0})</span>
                     </div>
                 )}
 
