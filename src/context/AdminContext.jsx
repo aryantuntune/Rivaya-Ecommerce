@@ -250,10 +250,48 @@ export const AdminProvider = ({ children }) => {
     };
 
     // --- Reviews ---
-    const addReview = (productId, review) => {
-        console.log("Add review via API not implemented yet");
+    const addReview = async (productId, reviewData) => {
+        try {
+            const res = await fetch(`${API_URL}/products/${productId}/reviews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(reviewData)
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Refresh products to show new review
+                fetchProducts();
+            } else {
+                alert(data.message || 'Failed to add review');
+            }
+        } catch (error) {
+            console.error("Add Review Error", error);
+        }
     };
-    const deleteReview = (productId, reviewId) => { };
+
+    const deleteReview = async (productId, reviewId) => {
+        if (!window.confirm("Are you sure you want to delete this review?")) return;
+        try {
+            const res = await fetch(`${API_URL}/products/${productId}/reviews/${reviewId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Refresh products
+                fetchProducts();
+            } else {
+                alert(data.message || 'Failed to delete review');
+            }
+        } catch (error) {
+            console.error("Delete Review Error", error);
+        }
+    };
 
 
     // --- Other Mock/Legacy Functions ---

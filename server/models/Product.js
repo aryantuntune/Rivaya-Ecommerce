@@ -58,7 +58,14 @@ const productSchema = new mongoose.Schema({
         min: 0,
         max: 5
     },
-    reviews: {
+    reviews: [{
+        user: { type: String, required: true },
+        rating: { type: Number, required: true },
+        comment: { type: String, required: true },
+        verified: { type: Boolean, default: false },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    numReviews: {
         type: Number,
         default: 0
     },

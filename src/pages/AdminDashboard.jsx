@@ -101,6 +101,40 @@ const AdminDashboard = () => {
                         <AdminProductManager />
                     )}
 
+                    {activeTab === 'orders' && (
+                        <>
+                            <h1>Order Management</h1>
+                            <div className="admin-section">
+                                <div className="orders-table">
+                                    <div className="order-row header">
+                                        <div><strong>Order ID</strong></div>
+                                        <div><strong>Customer</strong></div>
+                                        <div><strong>Total</strong></div>
+                                        <div><strong>Status</strong></div>
+                                        <div><strong>Date</strong></div>
+                                    </div>
+                                    {orders.map(order => (
+                                        <div key={order.id} className="order-row">
+                                            <div>
+                                                <strong>#{order.id}</strong>
+                                                <p>{order.items.length} items</p>
+                                            </div>
+                                            <div>User #{order.user}</div>
+                                            <div>₹{order.total}</div>
+                                            <div>
+                                                <span className={`status-badge ${order.orderStatus.toLowerCase()}`}>
+                                                    {order.orderStatus}
+                                                </span>
+                                            </div>
+                                            <div>{new Date(order.createdAt).toLocaleDateString()}</div>
+                                        </div>
+                                    ))}
+                                    {orders.length === 0 && <p className="no-data">No orders found.</p>}
+                                </div>
+                            </div>
+                        </>
+                    )}
+
                     {activeTab === 'banners' && (
                         <>
                             <h1>Banner Management</h1>
@@ -134,12 +168,22 @@ const AdminDashboard = () => {
                                                     />
                                                 </div>
                                                 <div className="form-group">
-                                                    <label>Image URL</label>
+                                                    <label>Banner Image</label>
                                                     <input
-                                                        type="text"
-                                                        value={b.image}
-                                                        onChange={(e) => updateHeroBanner(b.id, { image: e.target.value })}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files[0];
+                                                            if (file) {
+                                                                const reader = new FileReader();
+                                                                reader.onloadend = () => {
+                                                                    updateHeroBanner(b.id, { image: reader.result });
+                                                                };
+                                                                reader.readAsDataURL(file);
+                                                            }
+                                                        }}
                                                     />
+                                                    {/* URL Input Removed as per user request */}
                                                 </div>
                                                 <div className="form-group">
                                                     <label className="toggle-label">
@@ -208,13 +252,13 @@ const AdminDashboard = () => {
                                                     products
                                                         .flatMap(p => (p.reviews || []).map(r => ({ ...r, productName: p.name, productId: p.id })))
                                                         .map((review, index) => (
-                                                            <tr key={review.id || index}>
-                                                                <td>{review.productName}</td>
-                                                                <td>{review.user}</td>
-                                                                <td>{'★'.repeat(review.rating)}</td>
-                                                                <td className="review-comment">{review.comment}</td>
+                                                            <tr key={review.id || review._id || index}>
+                                                                <td>{review.productName || 'Unknown Product'}</td>
+                                                                <td>{review.user || 'Anonymous'}</td>
+                                                                <td>{'★'.repeat(review.rating || 0)}</td>
+                                                                <td className="review-comment" title={review.comment}>{review.comment || ''}</td>
                                                                 <td>
-                                                                    <button className="btn-icon delete" onClick={() => deleteReview(review.productId, review.id)}>Delete</button>
+                                                                    <button className="btn-icon delete" onClick={() => deleteReview(review.productId, review.id || review._id)}>Delete</button>
                                                                 </td>
                                                             </tr>
                                                         ))
@@ -283,7 +327,7 @@ const AddReviewForm = ({ products, onAdd }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onAdd(parseInt(selectedProduct), {
+        onAdd(selectedProduct, {
             user: reviewer,
             rating: parseInt(rating),
             comment,
