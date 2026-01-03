@@ -25,8 +25,18 @@ const seedData = async () => {
         await Product.deleteMany();
         await Collection.deleteMany();
         await Banner.deleteMany();
+        await User.deleteMany();
 
         console.log('Data Cleared...');
+
+        // 0. Create Admin User
+        await User.create({
+            name: 'Demo Admin',
+            email: 'admin@vrishtikalaa.com',
+            password: 'admin123', // Will be hashed by pre-save hook
+            role: 'admin'
+        });
+        console.log('Admin User Created...');
 
         // 1. Create Banners
         const banners = await Banner.create([
