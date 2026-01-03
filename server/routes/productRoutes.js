@@ -5,7 +5,9 @@ const {
     createProduct,
     updateProduct,
     deleteProduct,
-    trackInteraction
+    trackInteraction,
+    createProductReview,
+    deleteProductReview
 } = require('../controllers/productController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -21,6 +23,9 @@ router
     .get(getProduct)
     .put(protect, authorize('admin'), updateProduct)
     .delete(protect, authorize('admin'), deleteProduct);
+
+router.route('/:id/reviews').post(protect, authorize('admin'), createProductReview);
+router.route('/:id/reviews/:reviewId').delete(protect, authorize('admin'), deleteProductReview);
 
 router.post('/:id/track', trackInteraction);
 

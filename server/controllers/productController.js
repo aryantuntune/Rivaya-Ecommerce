@@ -196,3 +196,71 @@ exports.trackInteraction = async (req, res) => {
         });
     }
 };
+
+// @desc    Create new review
+// @route   POST /api/products/:id/reviews
+// @access  Private/Admin
+exports.createProductReview = async (req, res) => {
+    try {
+        const { rating, comment, user } = req.body;
+        const product = await Product.findById(req.params.id);
+
+        if (product) {
+            const review = {
+                user: user || 'Anonymous',
+                rating: Number(rating),
+                comment,
+                verified: true
+            };
+
+            product.reviews.push(review);
+            product.numReviews = product.reviews.length;
+            product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
+
+            await product.save();
+
+            // Return updated product or just success
+            res.status(201).json({
+                success: true,
+                message: 'Review added',
+                data: product
+            });
+        } else {
+            res.status(404).json({ success: false, message: 'Product not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Delete review
+// @route   DELETE /api/products/:id/reviews/:reviewId
+// @access  Private/Admin
+exports.deleteProductReview = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+
+        if (product) {
+            // Find review index
+            const reviewIndex = product.reviews.findIndex(r => r._id.toString() === req.params.reviewId);
+
+            if (reviewIndex === -1) {
+                return res.status(404).json({ success: false, message: 'Review not found' });
+            }
+
+            product.reviews.splice(reviewIndex, 1);
+            product.numReviews = product.reviews.length;
+
+            product.rating = product.reviews.length > 0
+                ? product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length
+                : 0;
+
+            await product.save();
+            res.status(200).json({ success: true, message: 'Review removed', data: product });
+        } else {
+            res.status(404).json({ success: false, message: 'Product not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

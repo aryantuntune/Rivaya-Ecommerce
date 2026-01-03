@@ -187,3 +187,184 @@
         padding: 1rem;
     }
 }
+
+/* Banner Management */
+.banners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.banner-control-card {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.banner-preview {
+    width: 100%;
+    height: 180px;
+    background: #eee;
+    position: relative;
+}
+
+.banner-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+    border: 2px solid white;
+}
+
+.status-dot.active {
+    background: var(--color-success);
+}
+
+.banner-edit-form {
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+/* Toggle Switch */
+.toggle-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 0;
+    /* Reset */
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider-round {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider-round:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider-round {
+    background-color: var(--color-primary);
+}
+
+input:checked+.slider-round:before {
+    transform: translateX(24px);
+}
+
+/* Review Table Styles */
+.reviews-table-container {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.review-comment {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-icon.delete {
+    color: var(--color-error);
+    background: #fff5f5;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.btn-icon.delete:hover {
+    background: #fee2e2;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 100px;
+    gap: 1.5rem;
+}
