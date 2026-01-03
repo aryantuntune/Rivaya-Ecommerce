@@ -2,8 +2,8 @@
     display: flex;
     min-height: 100vh;
     background: #f5f5f5;
-    padding-top: var(--header-height);
-    /* Ensure it starts below navbar */
+    padding-top: 0;
+    /* Full screen dashboard */
 }
 
 /* Sidebar Styles */
@@ -12,7 +12,7 @@
     background: #fff;
     border-right: 1px solid var(--color-border);
     position: fixed;
-    top: var(--header-height);
+    top: 0;
     bottom: 0;
     left: 0;
     padding: 2rem 0;

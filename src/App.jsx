@@ -31,7 +31,7 @@ const App = () => {
   // - Others: Header Height + (Banner Height if visible)
   const getPaddingTop = () => {
     if (isHomePage) return 0;
-    if (isAdminRoute) return 'var(--header-height)';
+    if (isAdminRoute) return 0;
     return isBannerVisible ? 'calc(var(--header-height) + 48px)' : 'var(--header-height)';
   };
 
@@ -39,7 +39,7 @@ const App = () => {
     <div className="app">
       <ScrollToTop />
       {!isAdminRoute && <SaleBanner isVisible={isBannerVisible} onClose={() => setIsBannerVisible(false)} />}
-      <Navbar isBannerVisible={isBannerVisible && !isAdminRoute} />
+      {!isAdminRoute && <Navbar isBannerVisible={isBannerVisible} />}
       <main style={{ paddingTop: getPaddingTop() }}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -53,8 +53,8 @@ const App = () => {
           <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </main>
-      <Footer />
-      <WhatsAppButton />
+      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <WhatsAppButton />}
     </div>
   );
 };

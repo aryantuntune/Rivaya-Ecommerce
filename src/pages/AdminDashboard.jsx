@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Navigate } from 'react-router-dom';
-import { Package, ShoppingBag, Users, DollarSign, TrendingUp, Eye, FileText } from 'lucide-react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { Package, ShoppingBag, Users, DollarSign, TrendingUp, Eye, FileText, Home, LogOut } from 'lucide-react';
 import AdminProductManager from '../components/AdminProductManager';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-    const { currentUser, products, orders, users, getStats, updateBanner, banner, heroBanners, toggleHeroBanner, updateHeroBanner, complaints, resolveComplaint, addReview, deleteReview } = useAdmin();
+    const { currentUser, products, orders, users, getStats, updateBanner, banner, heroBanners, toggleHeroBanner, updateHeroBanner, complaints, resolveComplaint, addReview, deleteReview, logout } = useAdmin();
     const [activeTab, setActiveTab] = useState('overview');
+    const navigate = useNavigate();
 
     if (!currentUser || currentUser.role !== 'admin') {
         return <Navigate to="/" />;
@@ -28,6 +29,11 @@ const AdminDashboard = () => {
                     <button className={activeTab === 'banners' ? 'active' : ''} onClick={() => setActiveTab('banners')}><FileText size={18} /> Banners & Content</button>
                     <button className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}><TrendingUp size={18} /> Reviews</button>
                     <button className={activeTab === 'complaints' ? 'active' : ''} onClick={() => setActiveTab('complaints')}><Users size={18} /> Complaints</button>
+
+                    <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #eee' }} />
+
+                    <button onClick={() => navigate('/')}><Home size={18} /> Back to Website</button>
+                    <button onClick={() => { logout(); navigate('/'); }} className="text-danger"><LogOut size={18} /> Logout</button>
                 </nav>
             </div>
 
@@ -45,7 +51,6 @@ const AdminDashboard = () => {
                                         <p>Total Products</p>
                                     </div>
                                 </div>
-                                {/* ... other stats ... */}
                                 <div className="stat-card">
                                     <ShoppingBag size={32} />
                                     <div>
@@ -196,19 +201,28 @@ const AdminDashboard = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {products.flatMap(p => (p.reviews || []).map(r => ({ ...r, productName: p.name, productId: p.id }))).map(review => (
-                                                <tr key={review.id}>
-                                                    <td>{review.productName}</td>
-                                                    <td>{review.user}</td>
-                                                    <td>{'★'.repeat(review.rating)}</td>
-                                                    <td className="review-comment">{review.comment}</td>
-                                                    <td>
-                                                        <button className="btn-icon delete" onClick={() => deleteReview(review.productId, review.id)}>Delete</button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                            {products.every(p => !p.reviews || p.reviews.length === 0) && (
-                                                <tr><td colSpan="5">No reviews found</td></tr>
+                                            {products && products.length > 0 ? (
+                                                products
+                                                    .flatMap(p => (p.reviews || []).map(r => ({ ...r, productName: p.name, productId: p.id })))
+                                                    .length > 0 ? (
+                                                    products
+                                                        .flatMap(p => (p.reviews || []).map(r => ({ ...r, productName: p.name, productId: p.id })))
+                                                        .map((review, index) => (
+                                                            <tr key={review.id || index}>
+                                                                <td>{review.productName}</td>
+                                                                <td>{review.user}</td>
+                                                                <td>{'★'.repeat(review.rating)}</td>
+                                                                <td className="review-comment">{review.comment}</td>
+                                                                <td>
+                                                                    <button className="btn-icon delete" onClick={() => deleteReview(review.productId, review.id)}>Delete</button>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                ) : (
+                                                    <tr><td colSpan="5" className="text-center">No reviews found across any products.</td></tr>
+                                                )
+                                            ) : (
+                                                <tr><td colSpan="5" className="text-center">No products found.</td></tr>
                                             )}
                                         </tbody>
                                     </table>

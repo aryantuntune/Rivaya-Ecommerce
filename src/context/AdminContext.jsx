@@ -268,12 +268,47 @@ export const AdminProvider = ({ children }) => {
     };
 
     // Stubs
-    const addCollection = () => { };
-    const updateCollection = () => { };
-    const deleteCollection = () => { };
-    const updateBanner = () => { };
-    const updateHeroBanner = () => { };
-    const toggleHeroBanner = () => { };
+    // --- Collections ---
+    const addCollection = () => { console.log("Add Collection not implemented"); };
+    const updateCollection = () => { console.log("Update Collection not implemented"); };
+    const deleteCollection = () => { console.log("Delete Collection not implemented"); };
+
+    // --- Banners ---
+    // Legacy Sale Banner (Local State for now, could be moved to DB if needed)
+    const updateBanner = (updates) => {
+        setSaleBanner(prev => ({ ...prev, ...updates }));
+    };
+
+    // Hero Banners (DB Connected)
+    const updateHeroBanner = async (id, updates) => {
+        try {
+            const res = await fetch(`${API_URL}/banners/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updates)
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                // Update local state to reflect changes immediately
+                setHeroBanners(heroBanners.map(b => b.id === id ? { ...b, ...updates } : b));
+            }
+        } catch (error) {
+            console.error("Update Banner Error", error);
+            alert("Failed to update banner");
+        }
+    };
+
+    const toggleHeroBanner = async (id) => {
+        const banner = heroBanners.find(b => b.id === id);
+        if (!banner) return;
+        await updateHeroBanner(id, { enabled: !banner.enabled });
+    };
+
+    // --- Orders ---
     const createOrder = () => { };
     const updateOrderStatus = () => { };
 
