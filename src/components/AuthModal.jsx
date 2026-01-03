@@ -11,19 +11,19 @@ const AuthModal = ({ isOpen, onClose, mode: initialMode = 'login' }) => {
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
         if (mode === 'login') {
-            const result = login(formData.email, formData.password);
+            const result = await login(formData.email, formData.password);
             if (result.success) {
                 onClose();
             } else {
                 setError(result.message);
             }
         } else {
-            const result = register(formData);
+            const result = await register(formData);
             if (result.success) {
                 onClose();
             } else {
