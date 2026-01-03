@@ -15,7 +15,7 @@ const ProductDetails = () => {
 
     useEffect(() => {
         // Find product by ID
-        const found = products.find(p => p.id === parseInt(id));
+        const found = products.find(p => p.id === id || p._id === id);
         if (found) {
             setProduct(found);
             setSelectedImage(found.images[0]);
