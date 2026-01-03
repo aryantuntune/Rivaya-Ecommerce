@@ -3,7 +3,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AdminContext = createContext();
 
 // Using localhost for dev. In prod this should be relative or env var.
-const API_URL = 'http://localhost:5000/api';
+// In production (Vite), we use relative path so Nginx proxies it.
+// In dev, we can use localhost or vite proxy.
+const API_URL = import.meta.env.PROD ? '/api' : 'http://localhost:5000/api';
 
 export const useAdmin = () => {
     const context = useContext(AdminContext);
