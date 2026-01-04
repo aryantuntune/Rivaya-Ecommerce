@@ -10,8 +10,72 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview');
     const navigate = useNavigate();
 
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const { login } = useAdmin();
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        const res = await login(email, password);
+        if (res.success) {
+            if (res.user.role === 'admin') {
+                // Success
+            } else {
+                alert("Access Denied: Admin privileges required.");
+                logout();
+            }
+        } else {
+            alert(res.message);
+        }
+    };
+
     if (!currentUser || currentUser.role !== 'admin') {
-        return <Navigate to="/" />;
+        return (
+            <div className="admin-login-page" style={{
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#f8f9fa'
+            }}>
+                <div style={{
+                    background: 'white',
+                    padding: '2rem',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                    width: '100%',
+                    maxWidth: '400px'
+                }}>
+                    <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#5e1e2d' }}>Admin Login</h2>
+                    <form onSubmit={handleLogin}>
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Email</label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                required
+                                style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '4px' }}
+                            />
+                        </div>
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Password</label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                required
+                                style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '4px' }}
+                            />
+                        </div>
+                        <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Login to Dashboard</button>
+                    </form>
+                    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer', textDecoration: 'underline' }}>Back to Home</button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     const stats = getStats();
