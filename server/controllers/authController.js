@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 exports.register = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { firstName, lastName, email, password, phone } = req.body;
 
         // Check if user exists
         const userExists = await User.findOne({ email });
@@ -26,9 +26,11 @@ exports.register = async (req, res) => {
 
         // Create user
         const user = await User.create({
-            name,
+            firstName,
+            lastName,
             email,
             password,
+            phone,
             role: 'customer'
         });
 

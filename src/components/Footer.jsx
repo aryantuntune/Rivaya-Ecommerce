@@ -61,8 +61,9 @@ const Footer = () => {
             </div>
 
             <div className="footer-bottom">
-                <div className="container">
+                <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <p>&copy; {new Date().getFullYear()} Rivaya. All rights reserved.</p>
+                    <Link to="/admin" style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', textDecoration: 'none', opacity: 0.7 }}>Admin Login</Link>
                 </div>
             </div>
         </footer>

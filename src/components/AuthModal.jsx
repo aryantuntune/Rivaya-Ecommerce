@@ -46,13 +46,31 @@ const AuthModal = ({ isOpen, onClose, mode: initialMode = 'login' }) => {
 
                 <form onSubmit={handleSubmit}>
                     {mode === 'register' && (
-                        <input
-                            type="text"
-                            placeholder="Full Name"
-                            required
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
+                        <>
+                            <div className="form-row" style={{ display: 'flex', gap: '0.5rem' }}>
+                                <input
+                                    type="text"
+                                    placeholder="First Name"
+                                    required
+                                    value={formData.firstName || ''}
+                                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Last Name"
+                                    required
+                                    value={formData.lastName || ''}
+                                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                />
+                            </div>
+                            <input
+                                type="tel"
+                                placeholder="Phone Number"
+                                required
+                                value={formData.phone || ''}
+                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            />
+                        </>
                     )}
 
                     <input
