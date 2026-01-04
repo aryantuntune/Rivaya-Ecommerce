@@ -12,8 +12,8 @@ const productSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: [true, 'Category is required'],
-        enum: ['Sarees', 'Kurtis', 'Lehenga', 'Anarkali', 'Palazzo Sets', 'Ethnic Sets']
+        required: [true, 'Category is required']
+        // Removed strict enum to allow flexible categories like 'Women', 'Men', 'Accessories'
     },
     price: {
         type: Number,
@@ -32,8 +32,7 @@ const productSchema = new mongoose.Schema({
         type: String
     }],
     sizes: [{
-        type: String,
-        enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+        type: String
     }],
     variants: [{
         size: { type: String, required: true },
@@ -48,7 +47,7 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    isNew: {
+    isNewArrival: { // Renamed from isNew to avoid conflict
         type: Boolean,
         default: false
     },
