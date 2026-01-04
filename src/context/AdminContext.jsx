@@ -92,6 +92,30 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
+    const updateProfile = async (userData) => {
+        try {
+            const res = await fetch(`${API_URL}/auth/updatedetails`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(userData)
+            });
+            const data = await res.json();
+            if (data.success) {
+                setCurrentUser(data.data); // Update local user state
+                localStorage.setItem('currentUser', JSON.stringify(data.data)); // Persist
+                return { success: true, user: data.data };
+            } else {
+                return { success: false, message: data.message };
+            }
+        } catch (error) {
+            console.error("Update Profile Error:", error);
+            return { success: false, message: "Server connection failed" };
+        }
+    };
+
     const logout = () => {
         setToken(null);
         setCurrentUser(null);
@@ -420,6 +444,7 @@ export const AdminProvider = ({ children }) => {
         login,
         register,
         logout,
+        updateProfile, // Added
         deleteAccount, // Added
 
         addProduct,

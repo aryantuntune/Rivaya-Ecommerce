@@ -17,7 +17,7 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import Complaint from './pages/Complaint';
 import AdminDashboard from './pages/AdminDashboard';
 import Collections from './pages/Collections';
-import OrderHistory from './pages/OrderHistory';
+import Profile from './pages/Profile'; // Replaces OrderHistory
 import PrivacyPolicy from './pages/PrivacyPolicy';
 
 const App = () => {
@@ -54,7 +54,9 @@ const App = () => {
           <Route path="/complaint" element={<Complaint />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/orders" element={<OrderHistory />} />
+          {/* Unified Profile & Orders Route */}
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orders" element={<Profile />} />
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}

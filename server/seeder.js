@@ -1,241 +1,277 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const Product = require('./models/Product');
-const Collection = require('./models/Collection');
-const Banner = require('./models/Banner');
+const bcrypt = require('bcryptjs');
+const path = require('path');
+
+// Robust Env Loading
+dotenv.config({ path: path.join(__dirname, '.env') });
+if (!process.env.MONGODB_URI) {
+    // Fallback try loading from parent dir if running from root
+    dotenv.config({ path: path.join(__dirname, '../.env') });
+}
+
+// Check again
+if (!process.env.MONGODB_URI) {
+    console.error("CRITICAL: MONGODB_URI is not defined.");
+    console.log("Current Dir:", __dirname);
+    process.exit(1);
+}
+
 const User = require('./models/User');
+const Product = require('./models/Product');
+const Banner = require('./models/Banner');
 
-dotenv.config();
-
-const connectDB = async () => {
-    try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI);
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
-    } catch (error) {
-        console.error(`Error: ${error.message}`);
-        process.exit(1);
+const products = [
+    {
+        name: "Royal Silk Saree",
+        description: "Elegant Banarasi silk saree with intricate gold zari work. Perfect for weddings and special occasions. Handwoven by master weavers of Varanasi.",
+        price: 12999,
+        category: "Women",
+        image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=2574&auto=format&fit=crop",
+        stock: 15,
+        rating: 4.8,
+        reviews: [],
+        size: ["Free Size"],
+        trending: true,
+        colors: ["Red", "Gold"]
+    },
+    {
+        name: "Designer Lehenga Choli",
+        description: "Hand-embroidered floral lehenga with a matching blouse and dupatta. Features exquisite thread work and sequins.",
+        price: 24999,
+        category: "Women",
+        image: "https://images.unsplash.com/photo-1583391733958-e026f3e5dd3d?q=80&w=2752&auto=format&fit=crop",
+        stock: 8,
+        rating: 4.9,
+        reviews: [],
+        size: ["S", "M", "L"],
+        trending: true,
+        colors: ["Pink", "Peach"]
+    },
+    {
+        name: "Classic Men's Sherwani",
+        description: "Premium ivory sherwani with pearl embellishments. A timeless choice for the groom or festive wear.",
+        price: 15999,
+        category: "Men",
+        image: "https://images.unsplash.com/photo-1597983073493-88cd35cf93b0?q=80&w=2695&auto=format&fit=crop",
+        stock: 10,
+        rating: 4.7,
+        reviews: [],
+        size: ["M", "L", "XL"],
+        trending: true,
+        colors: ["Ivory", "Cream"]
+    },
+    {
+        name: "Gold Plated Necklace Set",
+        description: "Traditional temple jewelry set with ruby and emerald stones. Includes necklace and matching earrings.",
+        price: 4999,
+        category: "Accessories",
+        image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=2670&auto=format&fit=crop",
+        stock: 25,
+        rating: 4.6,
+        reviews: [],
+        size: ["Free Size"],
+        trending: false,
+        colors: ["Gold"]
+    },
+    {
+        name: "Cotton Kurtis Combo",
+        description: "Set of 2 breathable cotton kurtis for daily wear. Comfortable fitting with vibrant prints.",
+        price: 1999,
+        category: "Women",
+        image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2666&auto=format&fit=crop",
+        stock: 50,
+        rating: 4.5,
+        reviews: [],
+        size: ["S", "M", "L", "XL"],
+        trending: true,
+        colors: ["Blue", "Yellow"]
+    },
+    {
+        name: "Embroidered Silk Kurta",
+        description: "Men's festive wear silk kurta in maroon. Detailed embroidery on the collar and cuffs.",
+        price: 2999,
+        category: "Men",
+        image: "https://images.unsplash.com/photo-1622122608249-aeaa1bb0801d?q=80&w=2574&auto=format&fit=crop",
+        stock: 20,
+        rating: 4.4,
+        reviews: [],
+        size: ["M", "L", "XL"],
+        trending: false,
+        colors: ["Maroon"]
+    },
+    {
+        name: "Kundan Earrings",
+        description: "Handcrafted Kundan earrings with pearl drops. Lightweight and perfect for ethnic outfits.",
+        price: 1299,
+        category: "Accessories",
+        image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=2574&auto=format&fit=crop",
+        stock: 30,
+        rating: 4.6,
+        reviews: [],
+        size: ["Free Size"],
+        trending: true,
+        colors: ["White", "Gold"]
+    },
+    {
+        name: "Couple Wedding Combo",
+        description: "Matching outfit set for couples - Saree and Sherwani. Color coordinated for the perfect wedding look.",
+        price: 35999,
+        category: "Couple",
+        image: "https://images.unsplash.com/photo-1627931327170-c752ba18261e?q=80&w=2670&auto=format&fit=crop",
+        stock: 5,
+        rating: 5.0,
+        reviews: [],
+        size: ["M", "L"],
+        trending: true,
+        colors: ["Red", "Beige"]
+    },
+    {
+        name: "Floral Summer Dress",
+        description: "Light and airy floral print dress, perfect for summer outings.",
+        price: 2499,
+        category: "Women",
+        image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?q=80&w=2546&auto=format&fit=crop",
+        stock: 30,
+        rating: 4.3,
+        reviews: [],
+        size: ["XS", "S", "M", "L"],
+        trending: true
+    },
+    {
+        name: "Designer Handbag",
+        description: "Premium leather textured handbag with spacious compartments.",
+        price: 5999,
+        category: "Accessories",
+        image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=2535&auto=format&fit=crop",
+        stock: 12,
+        rating: 4.7,
+        reviews: [],
+        size: ["Standard"],
+        trending: false
+    },
+    {
+        name: "Men's Linen Shirt",
+        description: "Casual linen shirt in pastel blue. Ideal for beach weddings or casual Fridays.",
+        price: 2199,
+        category: "Men",
+        image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=2576&auto=format&fit=crop",
+        stock: 25,
+        rating: 4.5,
+        reviews: [],
+        size: ["M", "L", "XL", "XXL"],
+        trending: true
+    },
+    {
+        name: "Silk Scarf",
+        description: "Luxurious printed silk scarf that adds elegance to any outfit.",
+        price: 1499,
+        category: "Accessories",
+        image: "https://images.unsplash.com/photo-1584022067786-9dc730d7cb6c?q=80&w=2574&auto=format&fit=crop",
+        stock: 40,
+        rating: 4.2,
+        reviews: [],
+        size: ["Free Size"],
+        trending: false
     }
-};
+];
 
-const seedData = async () => {
-    await connectDB();
+const banners = [
+    {
+        title: "Wedding Collection 2026",
+        subtitle: "Experience the grandeur of Indian weddings",
+        image: "https://images.unsplash.com/photo-1545959734-d07dbebc6199?q=80&w=2669&auto=format&fit=crop",
+        link: "/shop",
+        enabled: true,
+        order: 1
+    },
+    {
+        title: "Festive Elegance",
+        subtitle: "Shine bright this season",
+        image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?q=80&w=2670&auto=format&fit=crop",
+        link: "/shop",
+        enabled: true,
+        order: 2
+    },
+    {
+        title: "Modern Silk",
+        subtitle: "Tradition meets contemporary design",
+        image: "https://images.unsplash.com/photo-1575296500595-df7228833446?q=80&w=2574&auto=format&fit=crop",
+        link: "/shop",
+        enabled: true,
+        order: 3
+    },
+    {
+        title: "Accessories Sale",
+        subtitle: "Up to 50% off on Jewelry",
+        image: "https://images.unsplash.com/photo-1515562141207-7a88fb0521ed?q=80&w=2670&auto=format&fit=crop",
+        link: "/shop",
+        enabled: true,
+        order: 4
+    }
+];
 
+const seedDB = async () => {
     try {
-        // Clear existing data
-        await Product.deleteMany();
-        await Collection.deleteMany();
-        await Banner.deleteMany();
-        await User.deleteMany();
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log("MongoDB Connected");
 
-        console.log('Data Cleared...');
+        // Clear existing data to ensure clean demo state
+        // await Product.deleteMany({});
+        // await Banner.deleteMany({});
 
-        // 0. Create Admin User
-        await User.create({
-            name: 'Demo Admin',
-            email: 'admin@vrishtikalaa.com',
-            password: 'admin123', // Will be hashed by pre-save hook
-            role: 'admin'
-        });
-        console.log('Admin User Created...');
+        // Upsert Products
+        for (const product of products) {
+            await Product.findOneAndUpdate(
+                { name: product.name },
+                product,
+                { upsert: true, new: true, setDefaultsOnInsert: true }
+            );
+        }
+        console.log("Products Seeded");
 
-        // 1. Create Banners
-        const banners = await Banner.create([
-            {
-                title: "New Wedding Collection",
-                subtitle: "Handcrafted elegance for your special day",
-                image: "/images/hero_lehenga.png",
-                link: "/shop?category=Lehenga",
-                enabled: true,
-                order: 1
-            },
-            {
-                title: "Festive Saree Edit",
-                subtitle: "Timeless drapes for every occasion",
-                image: "/images/hero_saree.png",
-                link: "/shop?category=Sarees",
-                enabled: true,
-                order: 2
-            },
-            {
-                title: "Modern Fusion",
-                subtitle: "Contemporary styles for the new you",
-                image: "/images/hero_anarkali.png",
-                link: "/shop?category=Anarkali",
-                enabled: true,
-                order: 3
-            },
-            {
-                title: "The Royal Collection",
-                subtitle: "Exquisite designs for grand celebrations",
-                image: "/images/hero_lehenga.png",
-                link: "/shop?collection=royal",
-                enabled: true,
-                order: 4
+        // Upsert Banners (Preserve IDs if possible, or just overwrite slots)
+        // We want to ensure 4 distinct slots
+        const existingBanners = await Banner.find().sort({ order: 1 });
+
+        if (existingBanners.length < 4) {
+            // Not enough slots? Clear and reset properly
+            await Banner.deleteMany({});
+            await Banner.insertMany(banners);
+            console.log("Banners Reset and Seeded");
+        } else {
+            // Overwrite content of existing banners to restore demo look
+            for (let i = 0; i < 4; i++) {
+                if (existingBanners[i]) {
+                    Object.assign(existingBanners[i], banners[i]);
+                    await existingBanners[i].save();
+                }
             }
-        ]);
-        console.log('Banners Added...');
+            console.log("Existing Banners Restored");
+        }
 
-        // 2. Create Collections
-        const collections = await Collection.create([
-            {
-                name: "Royal Weddings",
-                description: "Premium lehengas and sherwanis for the grand occasion",
-                heroImage: "/images/hero_lehenga.png",
-                isActive: true
-            },
-            {
-                name: "Summer Breeze",
-                description: "Lightweight cottons and breathable fabrics",
-                heroImage: "/images/cat_women.png",
-                isActive: true
-            },
-            {
-                name: "Festive Glamour",
-                description: "Shine bright with our party wear collection",
-                heroImage: "/images/hero_anarkali.png",
-                isActive: true
-            }
-        ]);
-        console.log('Collections Added...');
+        // Ensure Admin Exists (Safety)
+        const adminEmail = 'admin@rivaya.com';
+        const existingAdmin = await User.findOne({ email: adminEmail });
+        if (!existingAdmin) {
+            const hashedPassword = await bcrypt.hash('admin123', 10);
+            await User.create({
+                name: 'Admin',
+                email: adminEmail,
+                password: hashedPassword,
+                role: 'admin'
+            });
+            console.log('Admin account created');
+        } else {
+            console.log("Admin account exists");
+        }
 
-        // 3. Create Products
-        const products = [
-            // Wedding Collection Products
-            {
-                name: "Royal Red Bridal Lehenga",
-                description: "Intricate zardosi work on pure raw silk fabric. Comes with double dupatta.",
-                category: "Lehenga",
-                price: 45999,
-                images: ["/images/hero_lehenga.png", "/images/cat_women.png"],
-                inStock: true,
-                stockQuantity: 5,
-                rating: 4.8,
-                numReviews: 12,
-                collections: [collections[0]._id]
-            },
-            {
-                name: "Golden Embroidered Sherwani",
-                description: "Hand embroidered sherwani in ivory and gold. Perfect for grooms.",
-                category: "Ethnic Sets",
-                price: 28999,
-                images: ["/images/cat_men.png", "/images/cat_couple.png"],
-                inStock: true,
-                stockQuantity: 8,
-                rating: 4.5,
-                numReviews: 5,
-                collections: [collections[0]._id]
-            },
-            {
-                name: "Designer Couple Set",
-                description: "Matching outfit for the perfect couple. Includes lehenga and sherwani.",
-                category: "Ethnic Sets",
-                price: 65000,
-                images: ["/images/cat_couple.png"],
-                inStock: true,
-                stockQuantity: 2,
-                rating: 5.0,
-                numReviews: 3,
-                collections: [collections[0]._id]
-            },
-
-            // Summer Breeze Products
-            {
-                name: "Pink Floral Anarkali",
-                description: "Cotton silk anarkali with hand block prints. Breathable and stylish.",
-                category: "Anarkali",
-                price: 4999,
-                images: ["/images/hero_anarkali.png"],
-                inStock: true,
-                stockQuantity: 15,
-                rating: 4.2,
-                numReviews: 20,
-                collections: [collections[1]._id]
-            },
-            {
-                name: "Daily Wear Kurti Set",
-                description: "Comfortable cotton kurti with palazzo pants.",
-                category: "Kurtis",
-                price: 1299,
-                images: ["/images/cat_women.png"],
-                inStock: true,
-                stockQuantity: 50,
-                rating: 4.0,
-                numReviews: 45,
-                collections: [collections[1]._id]
-            },
-            {
-                name: "Blue Cotton Saree",
-                description: "Soft cotton saree with geometric prints.",
-                category: "Sarees",
-                price: 1899,
-                images: ["/images/hero_saree.png"],
-                inStock: true,
-                stockQuantity: 25,
-                rating: 4.3,
-                numReviews: 18,
-                collections: [collections[1]._id]
-            },
-
-            // Festive Products
-            {
-                name: "Banarasi Silk Saree",
-                description: "Authentic banarasi silk with gold zari border.",
-                category: "Sarees",
-                price: 12500,
-                images: ["/images/hero_saree.png"],
-                inStock: true,
-                stockQuantity: 10,
-                rating: 4.9,
-                numReviews: 32,
-                collections: [collections[2]._id]
-            },
-            {
-                name: "Embroidered Palazzo Suit",
-                description: "Georgette suit with heavy embroidery on neck and sleeves.",
-                category: "Palazzo Sets",
-                price: 5500,
-                images: ["/images/cat_women.png"],
-                inStock: true,
-                stockQuantity: 12,
-                rating: 4.4,
-                numReviews: 8,
-                collections: [collections[2]._id]
-            },
-            {
-                name: "Velvet Lehenga Choli",
-                description: "Maroon velvet lehenga for winter weddings.",
-                category: "Lehenga",
-                price: 18000,
-                images: ["/images/hero_lehenga.png"],
-                inStock: true,
-                stockQuantity: 4,
-                rating: 4.7,
-                numReviews: 10,
-                collections: [collections[2]._id]
-            },
-            {
-                name: "Statement Necklace Set",
-                description: "Kundan work necklace with matching earrings.",
-                category: "Ethnic Sets", // Mapping to existing enum, assuming accessories might fall here or be added later
-                price: 2500,
-                images: ["/images/cat_accessories.png"],
-                inStock: true,
-                stockQuantity: 20,
-                rating: 4.1,
-                numReviews: 15,
-                collections: [collections[2]._id]
-            }
-        ];
-
-        await Product.create(products);
-        console.log('Products Added...');
-
-        console.log('Data Imported!');
+        console.log("Database Seeded Successfully");
         process.exit();
     } catch (error) {
-        console.error(`${error}`);
+        console.error("Error Seeding:", error);
         process.exit(1);
     }
 };
 
-seedData();
+seedDB();

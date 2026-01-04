@@ -28,7 +28,7 @@ const Home = () => {
       {/* 2. Features Display (Updated text from PDF) */}
       <div className="features-bar">
         {[
-          { icon: <Truck size={24} />, text: 'Free Shipping on 999', sub: 'On orders above ₹999' },
+          { icon: <Truck size={24} />, text: 'Free Shipping', sub: 'On orders above ₹999' },
           { icon: <ShieldCheck size={24} />, text: '100% Authentic', sub: 'Guaranteed Quality' },
           { icon: <Headset size={24} />, text: '24/7 Support', sub: 'Dedicated customer care' },
         ].map((feature, idx) => (

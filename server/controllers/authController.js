@@ -126,6 +126,39 @@ exports.getMe = async (req, res) => {
     }
 };
 
+// @desc    Update user details
+// @route   PUT /api/auth/updatedetails
+// @access  Private
+exports.updateDetails = async (req, res) => {
+    try {
+        const fieldsToUpdate = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            phone: req.body.phone,
+            addresses: req.body.addresses
+        };
+
+        // Remove undefined fields
+        Object.keys(fieldsToUpdate).forEach(key => fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]);
+
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 // @desc    Delete user account
 // @route   DELETE /api/auth/me
 // @access  Private

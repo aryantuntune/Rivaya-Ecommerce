@@ -89,9 +89,9 @@ const Navbar = ({ isBannerVisible = true }) => {
                                     <User size={20} />
                                 </button>
                                 <div className="user-dropdown">
-                                    <span className="user-name">Hi, {currentUser.name.split(' ')[0]}</span>
+                                    <span className="user-name">Hi, {currentUser.firstName || currentUser.name.split(' ')[0]}</span>
                                     {currentUser.role === 'admin' && <Link to="/admin">Admin Panel</Link>}
-                                    {currentUser.role === 'customer' && <Link to="/orders">My Orders</Link>}
+                                    {currentUser.role === 'customer' && <Link to="/profile">My Profile</Link>}
                                     <button onClick={logout} className="logout-btn">Logout</button>
                                 </div>
                             </div>
