@@ -55,6 +55,22 @@ const seedData = async () => {
                 link: "/shop?category=Sarees",
                 enabled: true,
                 order: 2
+            },
+            {
+                title: "Modern Fusion",
+                subtitle: "Contemporary styles for the new you",
+                image: "/images/hero_anarkali.png",
+                link: "/shop?category=Anarkali",
+                enabled: true,
+                order: 3
+            },
+            {
+                title: "The Royal Collection",
+                subtitle: "Exquisite designs for grand celebrations",
+                image: "/images/hero_lehenga.png",
+                link: "/shop?collection=royal",
+                enabled: true,
+                order: 4
             }
         ]);
         console.log('Banners Added...');

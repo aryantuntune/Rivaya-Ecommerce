@@ -18,6 +18,7 @@ import Complaint from './pages/Complaint';
 import AdminDashboard from './pages/AdminDashboard';
 import Collections from './pages/Collections';
 import OrderHistory from './pages/OrderHistory';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 const App = () => {
   const [isBannerVisible, setIsBannerVisible] = React.useState(true);
@@ -51,6 +52,7 @@ const App = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
           <Route path="/complaint" element={<Complaint />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/orders" element={<OrderHistory />} />
         </Routes>

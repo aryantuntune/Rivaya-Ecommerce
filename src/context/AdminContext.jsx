@@ -352,6 +352,49 @@ export const AdminProvider = ({ children }) => {
     const createOrder = () => { };
     const updateOrderStatus = () => { };
 
+    // --- Payment & User Actions ---
+    const deleteAccount = async () => {
+        try {
+            const res = await fetch(`${API_URL}/auth/me`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            return res.ok;
+        } catch (error) {
+            console.error("Delete Account Error", error);
+            return false;
+        }
+    };
+
+    const getRazorpayKey = async () => {
+        const res = await fetch(`${API_URL}/payment/key`);
+        return res.json();
+    };
+
+    const createRazorpayOrder = async (amount) => {
+        const res = await fetch(`${API_URL}/payment/create-order`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ amount })
+        });
+        return res.json();
+    };
+
+    const verifyRazorpayPayment = async (paymentData) => {
+        const res = await fetch(`${API_URL}/payment/verify`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(paymentData)
+        });
+        return res.json();
+    };
+
     const value = {
         products,
         complaints,
@@ -365,6 +408,7 @@ export const AdminProvider = ({ children }) => {
         login,
         register,
         logout,
+        deleteAccount, // Added
 
         addProduct,
         updateProduct,
@@ -381,7 +425,11 @@ export const AdminProvider = ({ children }) => {
 
         addCollection, updateCollection, deleteCollection,
         updateBanner, updateHeroBanner, toggleHeroBanner,
-        createOrder, updateOrderStatus
+        createOrder, updateOrderStatus,
+
+        getRazorpayKey, // Added
+        createRazorpayOrder, // Added
+        verifyRazorpayPayment // Added
     };
 
     return (

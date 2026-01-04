@@ -123,3 +123,21 @@ exports.getMe = async (req, res) => {
         });
     }
 };
+
+// @desc    Delete user account
+// @route   DELETE /api/auth/me
+// @access  Private
+exports.deleteAccount = async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.user.id);
+        res.status(200).json({
+            success: true,
+            message: 'User deleted'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

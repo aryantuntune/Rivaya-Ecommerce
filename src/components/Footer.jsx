@@ -54,7 +54,7 @@ const Footer = () => {
                         </li>
                         <li>
                             <Mail size={18} />
-                            <span>support@rivaya.com</span>
+                            <span>rivaya.executive@gmail.com</span>
                         </li>
                     </ul>
                 </div>

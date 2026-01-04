@@ -7,7 +7,7 @@ import './OrderConfirmation.css';
 const OrderConfirmation = () => {
     const { orderId } = useParams();
     const { orders } = useAdmin();
-    const order = orders.find(o => o.id === parseInt(orderId));
+    const order = orders.find(o => o.id === orderId || o._id === orderId);
 
     if (!order) {
         return (

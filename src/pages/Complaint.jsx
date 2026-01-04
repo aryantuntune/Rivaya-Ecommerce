@@ -47,8 +47,8 @@ const Complaint = () => {
                             <Mail size={32} />
                         </div>
                         <h3>Email Support</h3>
-                        <p>support@rivaya.com</p>
-                        <a href="mailto:support@rivaya.com" className="action-text">Send Email</a>
+                        <p>rivaya.executive@gmail.com</p>
+                        <a href="mailto:rivaya.executive@gmail.com" className="action-text">Send Email</a>
                     </div>
                 </div>
 

@@ -1,184 +1,235 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
-import { Star, Truck, ShieldCheck, ArrowLeft, Heart, ShoppingBag } from 'lucide-react';
-import '../styles/global.css';
+import { useCart } from '../context/CartContext';
+import { Star, Truck, ShieldCheck, Share2, Heart, Send } from 'lucide-react';
+import ProductCard from '../components/ProductCard'; // For Related Products
 import './ProductDetails.css';
 
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { products, trackProductInteraction } = useAdmin();
+    const { products, trackProductInteraction, currentUser, addReview } = useAdmin();
+    const { addToCart } = useCart();
+
+    // State
     const [product, setProduct] = useState(null);
     const [selectedImage, setSelectedImage] = useState('');
     const [selectedSize, setSelectedSize] = useState('');
+    const [relatedProducts, setRelatedProducts] = useState([]);
+
+    // Review State
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
 
     useEffect(() => {
-        // Find product by ID
+        // Find product
         const found = products.find(p => p.id === id || p._id === id);
         if (found) {
             setProduct(found);
             setSelectedImage(found.images[0]);
             // Track view
             trackProductInteraction(found.id, 'views');
-        } else {
-            // Redirect if not found (or show 404)
+
+            // SEO: Set Title
+            document.title = `${found.name} | Rivaya`;
+            // SEO: Meta Description (Basic implementation)
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) {
+                metaDesc = document.createElement('meta');
+                metaDesc.name = "description";
+                document.head.appendChild(metaDesc);
+            }
+            metaDesc.content = found.description.substring(0, 160);
+
+            // Related Products Logic
+            const related = products
+                .filter(p => p.category === found.category && p.id !== found.id)
+                .slice(0, 4);
+            setRelatedProducts(related);
+
+        } else if (products.length > 0) {
+            // Only redirect if products have loaded and still not found
             // navigate('/shop');
         }
     }, [id, products, trackProductInteraction]);
 
-    if (!product) return <div className="loading-state">Loading...</div>;
-
-    const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
-
     const handleAddToCart = () => {
-        if (!selectedSize && product.category !== 'Sarees') { // Sarees might be One Size
+        if (!selectedSize) {
             alert('Please select a size');
             return;
         }
+        addToCart({ ...product, size: selectedSize });
         trackProductInteraction(product.id, 'addToCart');
-        alert('Added to Cart! (Mock Action)');
+        alert('Added to Cart!');
     };
 
-    return (
-        <div className="product-details-page">
-            <div className="container">
-                <button onClick={() => navigate(-1)} className="back-btn">
-                    <ArrowLeft size={20} /> Back to Shop
-                </button>
+    const handleSubmitReview = async (e) => {
+        e.preventDefault();
+        if (!currentUser) {
+            alert("Please login to review");
+            return;
+        }
+        await addReview(product.id || product._id, {
+            rating,
+            comment,
+            user: currentUser.name
+        });
+        setComment('');
+        alert("Review Submitted!");
+    };
 
-                <div className="product-layout">
-                    {/* Left: Image Gallery */}
-                    <div className="product-gallery">
-                        <div className="main-image-container">
-                            <img src={selectedImage} alt={product.name} className="main-image" />
+    if (!product) return <div className="loading">Loading...</div>;
+
+    return (
+        <div className="product-details-page container">
+            <div className="product-details-grid">
+                {/* Images */}
+                <div className="product-images">
+                    <div className="thumbnail-list">
+                        {product.images.map((img, idx) => (
+                            <img
+                                key={idx}
+                                src={img}
+                                alt=""
+                                className={selectedImage === img ? 'active' : ''}
+                                onClick={() => setSelectedImage(img)}
+                            />
+                        ))}
+                    </div>
+                    <div className="main-image">
+                        <img src={selectedImage} alt={product.name} />
+                    </div>
+                </div>
+
+                {/* Info */}
+                <div className="product-info">
+                    <h1>{product.name}</h1>
+                    <div className="rating-row">
+                        <div className="stars">
+                            {[...Array(5)].map((_, i) => (
+                                <Star key={i} size={16} fill={i < Math.floor(product.rating) ? "#ffd700" : "none"} stroke="#ffd700" />
+                            ))}
                         </div>
-                        <div className="thumbnail-list">
-                            {product.images.map((img, idx) => (
+                        <span>({product.numReviews} reviews)</span>
+                    </div>
+
+                    <div className="price-row">
+                        <span className="current-price">₹{product.price}</span>
+                        {product.originalPrice && (
+                            <span className="original-price">₹{product.originalPrice}</span>
+                        )}
+                        {product.originalPrice && (
+                            <span className="discount">
+                                {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                            </span>
+                        )}
+                    </div>
+
+                    <p className="description">{product.description}</p>
+
+                    {/* Sizes */}
+                    <div className="options-section">
+                        <h4>Select Size</h4>
+                        <div className="size-options">
+                            {product.sizes.map(size => (
                                 <button
-                                    key={idx}
-                                    className={`thumbnail ${selectedImage === img ? 'active' : ''}`}
-                                    onClick={() => setSelectedImage(img)}
+                                    key={size}
+                                    className={`size-btn ${selectedSize === size ? 'active' : ''}`}
+                                    onClick={() => setSelectedSize(size)}
                                 >
-                                    <img src={img} alt={`View ${idx + 1}`} />
+                                    {size}
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Right: Product Info */}
-                    <div className="product-info">
-                        <span className="product-category">{product.category}</span>
-                        <h1 className="product-title">{product.name}</h1>
+                    {/* Actions */}
+                    <div className="action-buttons">
+                        <button className="btn btn-primary add-cart-btn" onClick={handleAddToCart}>
+                            Add to Cart
+                        </button>
+                        <button className="btn btn-outline wishlist-btn">
+                            <Heart size={20} />
+                        </button>
+                    </div>
 
-                        <div className="product-rating">
-                            <div className="stars">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        size={16}
-                                        fill={i < Math.floor(product.rating) ? "var(--color-accent)" : "transparent"}
-                                        color={i < Math.floor(product.rating) ? "var(--color-accent)" : "#ccc"}
-                                    />
-                                ))}
-                            </div>
-                            <span className="rating-count">({product.reviews?.length || 0} Reviews)</span>
+                    {/* Features */}
+                    <div className="product-features">
+                        <div className="p-feature">
+                            <Truck size={20} />
+                            <span>Free Shipping above ₹999</span>
                         </div>
-
-                        <div className="product-price">
-                            <span className="current-price">₹{product.price}</span>
-                            <span className="original-price">₹{product.originalPrice}</span>
-                            <span className="discount-tag">{discount}% OFF</span>
-                        </div>
-
-                        <div className="tax-note">Inclusive of all taxes</div>
-
-                        {/* Size Selection */}
-                        <div className="size-selection">
-                            <h3>Select Size</h3>
-                            <div className="sizes-grid">
-                                {product.variants.map(variant => (
-                                    <button
-                                        key={variant.size}
-                                        className={`size-btn ${selectedSize === variant.size ? 'selected' : ''} ${variant.stock === 0 ? 'disabled' : ''}`}
-                                        disabled={variant.stock === 0}
-                                        onClick={() => setSelectedSize(variant.size)}
-                                    >
-                                        {variant.size}
-                                    </button>
-                                ))}
-                            </div>
-                            {selectedSize && <p className="size-guide-link">Size Guide</p>}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="action-buttons">
-                            <button className="btn btn-primary add-to-cart-btn" onClick={handleAddToCart}>
-                                <ShoppingBag size={20} />
-                                Add to Cart
-                            </button>
-                            <button className="btn btn-outline wishlist-btn" onClick={() => trackProductInteraction(product.id, 'wishlist')}>
-                                <Heart size={20} />
-                            </button>
-                        </div>
-
-                        {/* Features */}
-                        <div className="product-features">
-                            <div className="feature-row">
-                                <Truck size={20} />
-                                <div>
-                                    <strong>Free Consignment</strong>
-                                    <p>On orders above ₹999</p>
-                                </div>
-                            </div>
-                            <div className="feature-row">
-                                <ShieldCheck size={20} />
-                                <div>
-                                    <strong>100% Authentic</strong>
-                                    <p>Quality guaranteed</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div className="product-description">
-                            <h3>Description</h3>
-                            <p>{product.description}</p>
+                        <div className="p-feature">
+                            <ShieldCheck size={20} />
+                            <span>100% Authentic Product</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Reviews Section */}
-                <div className="reviews-section">
-                    <h2>Customer Reviews</h2>
-                    <div className="reviews-list">
-                        {product.reviews && product.reviews.length > 0 ? (
-                            product.reviews.map(review => (
-                                <div key={review.id} className="review-card">
-                                    <div className="review-header">
-                                        <span className="reviewer-name">{review.user}</span>
-                                        <div className="stars">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star
-                                                    key={i}
-                                                    size={14}
-                                                    fill={i < review.rating ? "var(--color-accent)" : "transparent"}
-                                                    color={i < review.rating ? "var(--color-accent)" : "#ccc"}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <p className="review-text">"{review.comment}"</p>
-                                    <span className="review-date">
-                                        {review.verified && 'Verified Purchase • '}
-                                        {new Date(review.date).toLocaleDateString()}
-                                    </span>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="no-reviews">No reviews yet. Be the first to review!</p>
-                        )}
+            {/* Related Products */}
+            {relatedProducts.length > 0 && (
+                <div className="related-products-section">
+                    <h3>You May Also Like</h3>
+                    <div className="product-grid">
+                        {relatedProducts.map(rp => (
+                            <ProductCard key={rp.id} product={rp} />
+                        ))}
                     </div>
+                </div>
+            )}
+
+            {/* Reviews Section */}
+            <div className="reviews-section">
+                <h3>Customer Reviews</h3>
+
+                {/* Review Form */}
+                <div className="write-review">
+                    <h4>Write a Review</h4>
+                    <form onSubmit={handleSubmitReview}>
+                        <div className="rating-input">
+                            <span>Rating: </span>
+                            <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+                                <option value="5">5 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="2">2 Stars</option>
+                                <option value="1">1 Star</option>
+                            </select>
+                        </div>
+                        <textarea
+                            placeholder="Share your thoughts..."
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            required
+                        />
+                        <button type="submit" className="btn btn-secondary review-submit-btn">
+                            Submit Review <Send size={16} />
+                        </button>
+                    </form>
+                </div>
+
+                {/* Reviews List */}
+                <div className="reviews-list">
+                    {product.reviews && product.reviews.length > 0 ? (
+                        product.reviews.map((rev, idx) => (
+                            <div key={idx} className="review-card">
+                                <div className="review-header">
+                                    <div className="reviewer-name">{rev.user}</div>
+                                    <div className="review-stars">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} size={12} fill={i < rev.rating ? "#ffd700" : "none"} stroke="#ffd700" />
+                                        ))}
+                                    </div>
+                                </div>
+                                <p className="review-text">{rev.comment}</p>
+                                <span className="review-date">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="no-reviews">No reviews yet. Be the first!</p>
+                    )}
                 </div>
             </div>
         </div>

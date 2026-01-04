@@ -28,7 +28,6 @@ const Home = () => {
           { icon: <Truck size={24} />, text: 'Free Shipping on 999', sub: 'On orders above ₹999' },
           { icon: <ShieldCheck size={24} />, text: '100% Authentic', sub: 'Guaranteed duality' },
           { icon: <Headset size={24} />, text: '24/7 Support', sub: 'Dedicated customer care' },
-          { icon: <MessageCircle size={24} />, text: 'Easy Returns', sub: '7 days return policy' },
         ].map((feature, idx) => (
           <div key={idx} className="feature-item">
             <div className="feature-icon-wrapper">{feature.icon}</div>

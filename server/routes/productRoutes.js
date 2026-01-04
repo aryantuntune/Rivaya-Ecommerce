@@ -24,7 +24,7 @@ router
     .put(protect, authorize('admin'), updateProduct)
     .delete(protect, authorize('admin'), deleteProduct);
 
-router.route('/:id/reviews').post(protect, authorize('admin'), createProductReview);
+router.route('/:id/reviews').post(protect, createProductReview);
 router.route('/:id/reviews/:reviewId').delete(protect, authorize('admin'), deleteProductReview);
 
 router.post('/:id/track', trackInteraction);

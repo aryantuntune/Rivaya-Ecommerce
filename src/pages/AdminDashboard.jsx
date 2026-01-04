@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Package, ShoppingBag, Users, DollarSign, TrendingUp, Eye, FileText, Home, LogOut } from 'lucide-react';
@@ -143,63 +143,7 @@ const AdminDashboard = () => {
                                 <h2>Hero Slider Banners (4 Slots)</h2>
                                 <div className="banners-grid">
                                     {heroBanners.map(b => (
-                                        <div key={b.id} className="banner-control-card">
-                                            <div className="banner-preview">
-                                                <img src={b.image} alt={b.title} />
-                                                <div className="banner-overlay">
-                                                    <span className={`status-dot ${b.enabled ? 'active' : ''}`}></span>
-                                                </div>
-                                            </div>
-                                            <div className="banner-edit-form">
-                                                <div className="form-group">
-                                                    <label>Title</label>
-                                                    <input
-                                                        type="text"
-                                                        value={b.title}
-                                                        onChange={(e) => updateHeroBanner(b.id, { title: e.target.value })}
-                                                    />
-                                                </div>
-                                                <div className="form-group">
-                                                    <label>Subtitle</label>
-                                                    <input
-                                                        type="text"
-                                                        value={b.subtitle}
-                                                        onChange={(e) => updateHeroBanner(b.id, { subtitle: e.target.value })}
-                                                    />
-                                                </div>
-                                                <div className="form-group">
-                                                    <label>Banner Image</label>
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={(e) => {
-                                                            const file = e.target.files[0];
-                                                            if (file) {
-                                                                const reader = new FileReader();
-                                                                reader.onloadend = () => {
-                                                                    updateHeroBanner(b.id, { image: reader.result });
-                                                                };
-                                                                reader.readAsDataURL(file);
-                                                            }
-                                                        }}
-                                                    />
-                                                    {/* URL Input Removed as per user request */}
-                                                </div>
-                                                <div className="form-group">
-                                                    <label className="toggle-label">
-                                                        <span>Status</span>
-                                                        <label className="toggle-switch">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={b.enabled}
-                                                                onChange={() => toggleHeroBanner(b.id)}
-                                                            />
-                                                            <span className="slider-round"></span>
-                                                        </label>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <BannerEditor key={b.id} banner={b} onUpdate={updateHeroBanner} onToggle={toggleHeroBanner} />
                                     ))}
                                 </div>
                             </div>
@@ -228,6 +172,7 @@ const AdminDashboard = () => {
                             </div>
                         </>
                     )}
+
                     {activeTab === 'reviews' && (
                         <>
                             <h1>Review Management</h1>
@@ -285,7 +230,6 @@ const AdminDashboard = () => {
                             <h1>Customer Complaints</h1>
                             <div className="admin-section">
                                 <div className="orders-table">
-                                    {/* Reusing orders-table class for consistency */}
                                     {complaints.map(c => (
                                         <div key={c.id} className="order-row">
                                             <div>
@@ -366,6 +310,98 @@ const AddReviewForm = ({ products, onAdd }) => {
             </div>
             <button type="submit" className="btn btn-primary">Add Review</button>
         </form>
+    );
+};
+
+const BannerEditor = ({ banner, onUpdate, onToggle }) => {
+    const [localBanner, setLocalBanner] = useState({ ...banner });
+    const [isDirty, setIsDirty] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        setLocalBanner({ ...banner });
+    }, [banner.id]);
+
+    const handleChange = (field, value) => {
+        setLocalBanner(prev => ({ ...prev, [field]: value }));
+        setIsDirty(true);
+    };
+
+    const handleSave = async () => {
+        setSaving(true);
+        await onUpdate(banner.id, localBanner);
+        setSaving(false);
+        setIsDirty(false);
+        alert('Banner updated successfully');
+    };
+
+    return (
+        <div className="banner-control-card">
+            <div className="banner-preview">
+                <img src={localBanner.image || banner.image} alt={localBanner.title} />
+                <div className="banner-overlay">
+                    <span className={`status-dot ${banner.enabled ? 'active' : ''}`}></span>
+                </div>
+            </div>
+            <div className="banner-edit-form">
+                <div className="form-group">
+                    <label>Title</label>
+                    <input
+                        type="text"
+                        value={localBanner.title}
+                        onChange={(e) => handleChange('title', e.target.value)}
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Subtitle</label>
+                    <input
+                        type="text"
+                        value={localBanner.subtitle}
+                        onChange={(e) => handleChange('subtitle', e.target.value)}
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Banner Image</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                    handleChange('image', reader.result);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        }}
+                    />
+                </div>
+                <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label className="toggle-label">
+                        <span>Status</span>
+                        <label className="toggle-switch">
+                            <input
+                                type="checkbox"
+                                checked={banner.enabled}
+                                onChange={() => onToggle(banner.id)}
+                            />
+                            <span className="slider-round"></span>
+                        </label>
+                    </label>
+
+                    {isDirty && (
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={handleSave}
+                            disabled={saving}
+                        >
+                            {saving ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    )}
+                </div>
+            </div>
+        </div>
     );
 };
 

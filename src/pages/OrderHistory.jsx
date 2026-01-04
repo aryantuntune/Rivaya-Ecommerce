@@ -1,26 +1,42 @@
 import React, { useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Package, Clock, CheckCircle, Truck } from 'lucide-react';
 import './OrderHistory.css';
 
 const OrderHistory = () => {
-    const { currentUser, orders, getStats } = useAdmin();
+    const { currentUser, orders, getStats, logout } = useAdmin();
+    const navigate = useNavigate();
 
     if (!currentUser) {
         return <Navigate to="/" />;
     }
 
-    // In a real app, we would fetchByUserId here. 
-    // For now, we filter the global 'orders' state (which AdminContext likely mocks or fetches all of)
-    // If AdminContext fetches ALL orders, we filter by currentUser.id
-    // Note: AdminContext currently has 'orders' state. We might need to ensure it's populated for users.
     const myOrders = orders.filter(o => o.user === currentUser.id || o.user === currentUser._id || o.email === currentUser.email);
+
+    const handleDeleteAccount = async () => {
+        if (window.confirm("Are you sure? This will delete your account and all data permanently. This cannot be undone.")) {
+            const success = await deleteAccount();
+            if (success) {
+                alert("Account Deleted. We are sorry to see you go.");
+                logout();
+                navigate('/');
+            } else {
+                alert("Failed to delete account");
+            }
+        }
+    };
 
     return (
         <div className="order-history-page">
             <div className="container">
-                <h1>My Orders</h1>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h1>My Orders</h1>
+                    <button onClick={handleDeleteAccount} style={{ background: 'transparent', color: 'red', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                        Delete My Account
+                    </button>
+                </div>
+
                 <div className="orders-list">
                     {myOrders.length > 0 ? (
                         myOrders.map(order => (

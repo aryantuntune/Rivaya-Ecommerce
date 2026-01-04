@@ -82,14 +82,6 @@ const AuthModal = ({ isOpen, onClose, mode: initialMode = 'login' }) => {
                         {mode === 'login' ? 'Register' : 'Login'}
                     </button>
                 </p>
-
-                {mode === 'login' && (
-                    <div className="demo-credentials">
-                        <p><strong>Demo Admin:</strong></p>
-                        <p>Email: admin@vrishtikalaa.com</p>
-                        <p>Password: admin123</p>
-                    </div>
-                )}
             </div>
         </>
     );

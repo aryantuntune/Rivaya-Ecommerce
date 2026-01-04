@@ -15,6 +15,23 @@ exports.createOrder = async (req, res) => {
             total
         } = req.body;
 
+        // 1. Verify Stock & Decrement
+        for (const item of items) {
+            const product = await Product.findById(item.product);
+            if (!product) {
+                return res.status(404).json({ success: false, message: `Product not found` });
+            }
+            if (product.stockQuantity < item.quantity) {
+                return res.status(400).json({ success: false, message: `${product.name} is out of stock` });
+            }
+            // Decrement stock
+            product.stockQuantity -= item.quantity;
+            // Update analytics
+            product.analytics.purchases += item.quantity;
+            await product.save();
+        }
+
+        // 2. Create Order
         const order = await Order.create({
             user: req.user.id,
             items,
@@ -25,11 +42,20 @@ exports.createOrder = async (req, res) => {
             total
         });
 
-        // Update product analytics
-        for (const item of items) {
-            await Product.findByIdAndUpdate(item.product, {
-                $inc: { 'analytics.purchases': item.quantity }
+        // 3. Send Email Notification
+        const sendEmail = require('../utils/sendEmail');
+        try {
+            await sendEmail({
+                email: req.user.email,
+                subject: 'Rivaya Order Confirmation',
+                message: `<h1>Thank You for Your Order!</h1>
+                          <p>Order ID: <b>${order._id}</b> has been placed successfully.</p>
+                          <p>Total: ₹${total}</p>
+                          <p>We will notify you once it ships.</p>`
             });
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+            // Don't fail the order just because email failed
         }
 
         res.status(201).json({
