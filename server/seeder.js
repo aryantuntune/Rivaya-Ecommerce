@@ -251,20 +251,25 @@ const seedDB = async () => {
         }
 
         // Ensure Admin Exists (Safety)
+        // Ensure Admin Exists (Safety)
         const adminEmail = 'admin@rivaya.com';
-        const existingAdmin = await User.findOne({ email: adminEmail });
-        if (!existingAdmin) {
-            const hashedPassword = await bcrypt.hash('admin123', 10);
-            await User.create({
-                name: 'Admin',
+        const hashedPassword = await bcrypt.hash('admin123', 10);
+
+        // Find and update, or upsert (better than create to ensure fields are fixed)
+        await User.findOneAndUpdate(
+            { email: adminEmail },
+            {
+                name: 'System Admin',
+                firstName: 'System',
+                lastName: 'Admin',
+                phone: '9999999999',
                 email: adminEmail,
                 password: hashedPassword,
                 role: 'admin'
-            });
-            console.log('Admin account created');
-        } else {
-            console.log("Admin account exists");
-        }
+            },
+            { upsert: true, new: true, runValidators: true }
+        );
+        console.log('Admin account verified/updated');
 
         console.log("Database Seeded Successfully");
         process.exit();
