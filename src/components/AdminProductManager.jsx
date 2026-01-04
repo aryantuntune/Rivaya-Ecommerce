@@ -15,12 +15,29 @@ const AdminProductManager = () => {
         price: '',
         description: '',
         images: [''],
+        trending: false,
         variants: [
             { size: 'S', stock: 10, sku: '' },
             { size: 'M', stock: 10, sku: '' },
             { size: 'L', stock: 10, sku: '' },
             { size: 'XL', stock: 10, sku: '' }
         ]
+    };
+
+    const [customCategory, setCustomCategory] = useState('');
+    const [isCustomCategory, setIsCustomCategory] = useState(false);
+
+    const categories = ['Short Kurti', 'Long Kurti', 'Backless Designs', 'Ethnic Sets', 'Sarees', 'Lehenga', 'Men', 'Accessories', 'Couple'];
+
+    const handleCategoryChange = (e) => {
+        const val = e.target.value;
+        if (val === 'custom') {
+            setIsCustomCategory(true);
+            setEditProduct({ ...editProduct, category: '' });
+        } else {
+            setIsCustomCategory(false);
+            setEditProduct({ ...editProduct, category: val });
+        }
     };
 
     const handleEdit = (product) => {
@@ -92,16 +109,23 @@ const AdminProductManager = () => {
                             <div className="form-group">
                                 <label>Category</label>
                                 <select
-                                    value={editProduct.category}
-                                    onChange={(e) => setEditProduct({ ...editProduct, category: e.target.value })}
+                                    value={isCustomCategory ? 'custom' : editProduct.category}
+                                    onChange={handleCategoryChange}
                                 >
-                                    <option>Short Kurti</option>
-                                    <option>Long Kurti</option>
-                                    <option>Backless Designs</option>
-                                    <option>Ethnic Sets</option>
-                                    <option>Sarees</option>
-                                    <option>Lehenga</option>
+                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                    {!categories.includes(editProduct.category) && editProduct.category && !isCustomCategory && <option value={editProduct.category}>{editProduct.category}</option>}
+                                    <option value="custom">+ Add New Collection</option>
                                 </select>
+                                {isCustomCategory && (
+                                    <input
+                                        type="text"
+                                        placeholder="Enter new collection name"
+                                        value={editProduct.category}
+                                        onChange={(e) => setEditProduct({ ...editProduct, category: e.target.value })}
+                                        style={{ marginTop: '0.5rem' }}
+                                        autoFocus
+                                    />
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>Price (₹)</label>
@@ -112,6 +136,18 @@ const AdminProductManager = () => {
                                     required
                                 />
                             </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={editProduct.trending || false}
+                                    onChange={(e) => setEditProduct({ ...editProduct, trending: e.target.checked })}
+                                    style={{ width: 'auto', margin: 0 }}
+                                />
+                                <span>Mark as Trending (Shows on Home Page)</span>
+                            </label>
                         </div>
 
                         <div className="form-group">

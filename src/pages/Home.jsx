@@ -14,7 +14,10 @@ const Home = () => {
   const { products } = useAdmin();
 
   // Logic for trending (Mock: Top 8 items)
-  const trendingProducts = products.slice(0, 8);
+  // Logic for trending (Filter by trending flag, fallback to top 8)
+  const trendingProducts = products.filter(p => p.trending).slice(0, 8);
+  // Fallback if no trending marked
+  const displayTrending = trendingProducts.length > 0 ? trendingProducts : products.slice(0, 8);
 
   return (
     <div className="home-page">
@@ -49,7 +52,7 @@ const Home = () => {
           <p>Our most loved styles</p>
         </div>
         <div className="product-grid">
-          {trendingProducts.map(product => (
+          {displayTrending.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

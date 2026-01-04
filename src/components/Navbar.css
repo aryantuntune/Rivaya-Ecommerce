@@ -211,6 +211,11 @@
     display: none;
 }
 
+/* Fix: Double Navbar Issue */
+.mobile-menu {
+    display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .desktop-only {
