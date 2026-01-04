@@ -27,11 +27,21 @@ const HeroSlider = () => {
         setCurrentIndex(current => (current - 1 + activeBanners.length) % activeBanners.length);
     };
 
-    if (activeBanners.length === 0) return null;
+    // Fallback if no banners are active (prevents layout collapse)
+    const displayBanners = activeBanners.length > 0 ? activeBanners : [{
+        id: 'default',
+        image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop', // Generic pleasant background
+        title: 'Welcome to Rivaya',
+        subtitle: 'Discover our latest collection',
+        link: '/shop',
+        enabled: true
+    }];
+
+    if (displayBanners.length === 0) return null; // Should not happen with fallback
 
     return (
         <div className="hero-slider">
-            {activeBanners.map((banner, index) => (
+            {displayBanners.map((banner, index) => (
                 <div
                     key={banner.id}
                     className={`slide ${index === currentIndex ? 'active' : ''}`}

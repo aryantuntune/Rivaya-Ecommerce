@@ -5,18 +5,21 @@
     width: 100%;
     z-index: 1000;
     transition: all 0.3s ease;
-    background: transparent;
+    /* Fix: Ensure readability by default or use gradient overlay if transparent */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
 }
 
 .navbar.shifted {
-    top: 40px; /* Height of the top banner */
+    top: 40px;
+    /* Height of the top banner */
 }
 
 .navbar.scrolled {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-    top: 0; /* Stick to top when scrolled */
+    top: 0;
+    /* Stick to top when scrolled */
     padding: 0.5rem 0;
 }
 
@@ -27,6 +30,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    /* Fix: Ensure full width usage */
+    box-sizing: border-box;
+    /* Fix: Padding included in width */
 }
 
 .navbar.scrolled .navbar-content {
@@ -50,15 +57,23 @@
 
 .nav-links {
     display: flex;
-    gap: 2.5rem;
+    gap: 3rem;
+    /* Fix: Increase gap for better separation */
+    flex-grow: 1;
+    /* Fix: Allow links to take space */
+    justify-content: center;
+    /* Fix: Center links */
 }
 
 .nav-links a {
     text-decoration: none;
     color: var(--color-text);
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    /* Fix: Slightly larger text */
     text-transform: uppercase;
+    white-space: nowrap;
+    /* Fix: Prevent text wrapping */
     letter-spacing: 1px;
     position: relative;
     transition: color 0.3s;
@@ -131,7 +146,7 @@
     right: 0;
     background: white;
     min-width: 180px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 0.5rem 0;
     opacity: 0;
@@ -217,7 +232,7 @@
         z-index: 1001;
         padding: 2rem;
         transition: right 0.3s ease;
-        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
