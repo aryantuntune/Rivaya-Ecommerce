@@ -156,7 +156,131 @@ const Checkout = () => {
                         )}
 
                         {step === 3 && (
-                            <form onSubmit={handleSubmit}>
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                if (paymentMethod === 'COD') {
+                                    // Existing COD Logic
+                                    const order = await createOrder({
+                                        user: currentUser.id || currentUser._id, // Ensure ID is present
+                                        items: cartItems.map(item => ({
+                                            product: item.id || item._id,     // Backend expects Product ID
+                                            name: item.name,
+                                            price: item.price,
+                                            quantity: item.quantity,
+                                            size: item.size,
+                                            image: item.image
+                                        })),
+                                        shippingAddress,
+                                        paymentMethod: 'COD',
+                                        paymentStatus: 'Pending',
+                                        subtotal: cartTotal,
+                                        shippingCost: cartTotal > 999 ? 0 : 99,
+                                        total: cartTotal > 999 ? cartTotal : cartTotal + 99
+                                    });
+                                    if (order) {
+                                        clearCart();
+                                        navigate(`/order-confirmation/${order.id || order._id}`);
+                                    } else {
+                                        alert("Failed to place order. Please try again.");
+                                    }
+                                } else if (paymentMethod === 'UPI' || paymentMethod === 'Card') {
+                                    // Razorpay Logic
+                                    try {
+                                        // 1. Get Key
+                                        const { key } = await fetch('http://localhost:5000/api/payment/key').then(res => res.json());
+
+                                        // 2. Create Order on Server
+                                        const totalAmount = cartTotal > 999 ? cartTotal : cartTotal + 99;
+                                        const { order } = await fetch('http://localhost:5000/api/payment/create-order', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                            },
+                                            body: JSON.stringify({ amount: totalAmount })
+                                        }).then(res => res.json());
+
+                                        if (!order) {
+                                            alert("Server error. Could not initiate payment.");
+                                            return;
+                                        }
+
+                                        // 3. Open Razorpay
+                                        const options = {
+                                            key: key,
+                                            amount: order.amount,
+                                            currency: "INR",
+                                            name: "Rivaya",
+                                            description: "Purchase from Rivaya Online",
+                                            image: "/vite.svg", // Replace with logo URL
+                                            order_id: order.id,
+                                            handler: async function (response) {
+                                                // 4. On Success, verify and create internal order
+                                                const verifyRes = await fetch('http://localhost:5000/api/payment/verify', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                                    },
+                                                    body: JSON.stringify({
+                                                        razorpay_order_id: response.razorpay_order_id,
+                                                        razorpay_payment_id: response.razorpay_payment_id,
+                                                        razorpay_signature: response.razorpay_signature
+                                                    })
+                                                });
+
+                                                const verifyData = await verifyRes.json();
+
+                                                if (verifyData.success) {
+                                                    // Create the actual order in DB
+                                                    const finalOrder = await createOrder({
+                                                        user: currentUser.id || currentUser._id,
+                                                        items: cartItems.map(item => ({
+                                                            product: item.id || item._id,
+                                                            name: item.name,
+                                                            price: item.price,
+                                                            quantity: item.quantity,
+                                                            size: item.size,
+                                                            image: item.image
+                                                        })),
+                                                        shippingAddress,
+                                                        paymentMethod: 'Online',
+                                                        paymentResult: {
+                                                            id: response.razorpay_payment_id,
+                                                            status: 'Success',
+                                                            email_address: currentUser.email,
+                                                        },
+                                                        isPaid: true,
+                                                        paidAt: Date.now(),
+                                                        subtotal: cartTotal,
+                                                        shippingCost: cartTotal > 999 ? 0 : 99,
+                                                        total: totalAmount
+                                                    });
+
+                                                    clearCart();
+                                                    navigate(`/order-confirmation/${finalOrder.id || finalOrder._id}`);
+                                                } else {
+                                                    alert("Payment verification failed!");
+                                                }
+                                            },
+                                            prefill: {
+                                                name: shippingAddress.fullName,
+                                                email: currentUser.email,
+                                                contact: shippingAddress.phone
+                                            },
+                                            theme: {
+                                                color: "#5e1e2d"
+                                            }
+                                        };
+                                        const rzp1 = new window.Razorpay(options);
+                                        rzp1.open();
+
+                                    } catch (err) {
+                                        console.error("Payment Error: ", err);
+                                        alert("Something went wrong with payment.");
+                                    }
+                                }
+                            }}>
                                 <h2>Payment Method</h2>
                                 <div className="payment-options">
                                     <label className="payment-option">
@@ -177,10 +301,10 @@ const Checkout = () => {
                                             checked={paymentMethod === 'UPI'}
                                             onChange={(e) => setPaymentMethod(e.target.value)}
                                         />
-                                        <span>UPI</span>
+                                        <span>Online Payment (UPI / Card)</span>
                                     </label>
                                 </div>
-                                <button type="submit" className="btn btn-primary">Place Order</button>
+                                <button type="submit" className="btn btn-primary">Place Order & Pay</button>
                             </form>
                         )}
                     </div>

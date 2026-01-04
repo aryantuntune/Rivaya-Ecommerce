@@ -17,6 +17,7 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import Complaint from './pages/Complaint';
 import AdminDashboard from './pages/AdminDashboard';
 import Collections from './pages/Collections';
+import OrderHistory from './pages/OrderHistory';
 
 const App = () => {
   const [isBannerVisible, setIsBannerVisible] = React.useState(true);
@@ -51,6 +52,7 @@ const App = () => {
           <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
           <Route path="/complaint" element={<Complaint />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/orders" element={<OrderHistory />} />
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}

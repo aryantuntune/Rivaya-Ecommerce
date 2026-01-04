@@ -78,14 +78,33 @@ const Navbar = ({ isBannerVisible = true }) => {
                         >
                             <Search size={20} />
                         </button>
-                        <button
-                            className="icon-btn"
-                            aria-label="Account"
-                            onClick={() => currentUser ? (currentUser.role === 'admin' ? navigate('/admin') : null) : setIsAuthModalOpen(true)}
-                            title={currentUser ? currentUser.name : 'Login'}
-                        >
-                            <User size={20} />
-                        </button>
+
+                        {currentUser ? (
+                            <div className="user-menu-container">
+                                <button
+                                    className="icon-btn"
+                                    onClick={() => currentUser.role === 'admin' ? navigate('/admin') : alert("Customer Profile Page coming soon!")}
+                                    title={currentUser.name}
+                                >
+                                    <User size={20} />
+                                </button>
+                                <div className="user-dropdown">
+                                    <span className="user-name">Hi, {currentUser.name.split(' ')[0]}</span>
+                                    {currentUser.role === 'admin' && <Link to="/admin">Admin Panel</Link>}
+                                    {currentUser.role === 'customer' && <Link to="/orders">My Orders</Link>}
+                                    <button onClick={logout} className="logout-btn">Logout</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                className="icon-btn"
+                                aria-label="Login"
+                                onClick={() => setIsAuthModalOpen(true)}
+                            >
+                                <User size={20} />
+                            </button>
+                        )}
+
                         <button
                             className="icon-btn cart-btn"
                             aria-label="Cart"
