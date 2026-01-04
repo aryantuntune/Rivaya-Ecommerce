@@ -157,6 +157,7 @@ export const AdminProvider = ({ children }) => {
                 },
                 body: JSON.stringify(productData)
             });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const data = await res.json();
             if (data.success) {
@@ -179,6 +180,7 @@ export const AdminProvider = ({ children }) => {
                 },
                 body: JSON.stringify(updates)
             });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const data = await res.json();
             if (data.success) {
@@ -197,6 +199,7 @@ export const AdminProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`
                 }
             });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const data = await res.json();
             if (data.success) {
@@ -241,6 +244,7 @@ export const AdminProvider = ({ children }) => {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             if (res.ok) {
                 const updated = await res.json();
@@ -262,6 +266,7 @@ export const AdminProvider = ({ children }) => {
                 },
                 body: JSON.stringify(reviewData)
             });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
             const data = await res.json();
             if (data.success) {
                 // Refresh products to show new review
@@ -283,6 +288,7 @@ export const AdminProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`
                 }
             });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
             const data = await res.json();
             if (data.success) {
                 // Refresh products
@@ -330,6 +336,11 @@ export const AdminProvider = ({ children }) => {
                 },
                 body: JSON.stringify(updates)
             });
+            if (res.status === 401) {
+                logout();
+                alert("Session expired. Please login again.");
+                return;
+            }
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const data = await res.json();
             if (data.success) {
@@ -359,6 +370,7 @@ export const AdminProvider = ({ children }) => {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
             return res.ok;
         } catch (error) {
             console.error("Delete Account Error", error);
