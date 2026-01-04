@@ -31,7 +31,7 @@ const products = [
         stock: 15,
         rating: 4.8,
         reviews: [],
-        size: ["Free Size"],
+        sizes: ["Free Size"],
         trending: true,
         colors: ["Red", "Gold"]
     },
@@ -44,7 +44,7 @@ const products = [
         stock: 8,
         rating: 4.9,
         reviews: [],
-        size: ["S", "M", "L"],
+        sizes: ["S", "M", "L"],
         trending: true,
         colors: ["Pink", "Peach"]
     },
@@ -57,7 +57,7 @@ const products = [
         stock: 10,
         rating: 4.7,
         reviews: [],
-        size: ["M", "L", "XL"],
+        sizes: ["M", "L", "XL"],
         trending: true,
         colors: ["Ivory", "Cream"]
     },
@@ -70,7 +70,7 @@ const products = [
         stock: 25,
         rating: 4.6,
         reviews: [],
-        size: ["Free Size"],
+        sizes: ["Free Size"],
         trending: false,
         colors: ["Gold"]
     },
@@ -83,7 +83,7 @@ const products = [
         stock: 50,
         rating: 4.5,
         reviews: [],
-        size: ["S", "M", "L", "XL"],
+        sizes: ["S", "M", "L", "XL"],
         trending: true,
         colors: ["Blue", "Yellow"]
     },
@@ -96,7 +96,7 @@ const products = [
         stock: 20,
         rating: 4.4,
         reviews: [],
-        size: ["M", "L", "XL"],
+        sizes: ["M", "L", "XL"],
         trending: false,
         colors: ["Maroon"]
     },
@@ -109,7 +109,7 @@ const products = [
         stock: 30,
         rating: 4.6,
         reviews: [],
-        size: ["Free Size"],
+        sizes: ["Free Size"],
         trending: true,
         colors: ["White", "Gold"]
     },
@@ -122,7 +122,7 @@ const products = [
         stock: 5,
         rating: 5.0,
         reviews: [],
-        size: ["M", "L"],
+        sizes: ["M", "L"],
         trending: true,
         colors: ["Red", "Beige"]
     },
@@ -135,7 +135,7 @@ const products = [
         stock: 30,
         rating: 4.3,
         reviews: [],
-        size: ["XS", "S", "M", "L"],
+        sizes: ["XS", "S", "M", "L"],
         trending: true
     },
     {
@@ -147,7 +147,7 @@ const products = [
         stock: 12,
         rating: 4.7,
         reviews: [],
-        size: ["Standard"],
+        sizes: ["Standard"],
         trending: false
     },
     {
@@ -159,7 +159,7 @@ const products = [
         stock: 25,
         rating: 4.5,
         reviews: [],
-        size: ["M", "L", "XL", "XXL"],
+        sizes: ["M", "L", "XL", "XXL"],
         trending: true
     },
     {
@@ -171,7 +171,7 @@ const products = [
         stock: 40,
         rating: 4.2,
         reviews: [],
-        size: ["Free Size"],
+        sizes: ["Free Size"],
         trending: false
     }
 ];
