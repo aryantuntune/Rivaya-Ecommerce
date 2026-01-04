@@ -5,7 +5,7 @@ const Banner = require('../models/Banner');
 // @access  Public
 exports.getBanners = async (req, res) => {
     try {
-        const banners = await Banner.find({ enabled: true }).sort({ order: 1 });
+        const banners = await Banner.find({}).sort({ order: 1 });
         res.status(200).json({ success: true, count: banners.length, data: banners });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server Error' });
