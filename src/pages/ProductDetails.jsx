@@ -83,6 +83,15 @@ const ProductDetails = () => {
 
     return (
         <div className="product-details-page container">
+            {/* Breadcrumbs */}
+            <div className="breadcrumbs" style={{ margin: '1rem 0', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Home</Link>
+                <span style={{ margin: '0 0.5rem' }}>/</span>
+                <Link to="/shop" style={{ color: 'inherit', textDecoration: 'none' }}>Shop</Link>
+                <span style={{ margin: '0 0.5rem' }}>/</span>
+                <span style={{ color: 'var(--color-primary)' }}>{product.name}</span>
+            </div>
+
             <div className="product-details-grid">
                 {/* Images */}
                 <div className="product-images">

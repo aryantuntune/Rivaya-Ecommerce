@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import SaleBanner from './components/SaleBanner';
 import ScrollToTop from './components/ScrollToTop';
+import BackToTopButton from './components/BackToTopButton';
 
 
 // Pages
@@ -61,6 +62,7 @@ const App = () => {
       </main>
       {!isAdminRoute && <Footer />}
       {!isAdminRoute && <WhatsAppButton />}
+      {!isAdminRoute && <BackToTopButton />}
     </div>
   );
 };

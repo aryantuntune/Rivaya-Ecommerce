@@ -6,6 +6,14 @@
     border-radius: var(--border-radius);
 }
 
+.product-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    /* Premium lift effect */
+    border-color: transparent;
+    transform: translateY(-5px);
+    /* Gentle lift */
+}
+
 .card-image-wrapper {
     position: relative;
     aspect-ratio: 2/3;
