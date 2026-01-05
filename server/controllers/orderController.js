@@ -122,17 +122,26 @@ exports.getMyOrders = async (req, res) => {
 // @access  Private
 exports.getOrder = async (req, res) => {
     try {
+        console.log(`[GetOrder] Request for ID: ${req.params.id}`);
         const order = await Order.findById(req.params.id).populate('items.product');
 
         if (!order) {
+            console.error(`[GetOrder] Order not found in DB: ${req.params.id}`);
             return res.status(404).json({
                 success: false,
                 message: 'Order not found'
             });
         }
 
+        // Authentication Debugging
+        const orderUser = order.user.toString();
+        const requestUser = req.user.id;
+        const isAdmin = req.user.role === 'admin';
+        console.log(`[GetOrder] Auth Check - OrderUser: ${orderUser}, RequestUser: ${requestUser}, IsAdmin: ${isAdmin}`);
+
         // Make sure user is order owner or admin
-        if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (orderUser !== requestUser && !isAdmin) {
+            console.error(`[GetOrder] Access Denied`);
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to access this order'
