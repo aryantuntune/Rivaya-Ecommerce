@@ -80,6 +80,24 @@ const AdminProductManager = () => {
         }));
     };
 
+    const handleVariantChange = (index, field, value) => {
+        const newVariants = [...editProduct.variants];
+        newVariants[index][field] = value;
+        setEditProduct({ ...editProduct, variants: newVariants });
+    };
+
+    const addVariant = () => {
+        setEditProduct({
+            ...editProduct,
+            variants: [...editProduct.variants, { size: '', stock: 0, sku: '' }]
+        });
+    };
+
+    const removeVariant = (index) => {
+        const newVariants = editProduct.variants.filter((_, i) => i !== index);
+        setEditProduct({ ...editProduct, variants: newVariants });
+    };
+
     const validateProduct = () => {
         // Validate SKUs
         const skus = editProduct.variants.map(v => v.sku?.trim()).filter(Boolean);
