@@ -202,15 +202,46 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
+    const fetchUsers = async () => {
+        try {
+            const res = await fetch(`${API_URL}/auth/users`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.status === 401) return;
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                setUsers(data.data.map(u => ({ ...u, id: u._id })));
+            }
+        } catch (error) {
+            console.error("Failed to fetch users", error);
+        }
+    };
+
+    const fetchCollections = async () => {
+        try {
+            const res = await fetch(`${API_URL}/collections`);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                setCollections(data.data.map(c => ({ ...c, id: c._id })));
+            }
+        } catch (error) {
+            console.error("Failed to fetch collections", error);
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
         fetchComplaints();
         fetchBanners();
+        fetchCollections(); // Publicly visible usually
         if (token) {
             // Check role if possible, but for now just try fetching my orders, 
             // and if admin, fetch all (which will overwrite/add)
             if (currentUser && currentUser.role === 'admin') {
                 fetchOrders();
+                fetchUsers();
             } else {
                 fetchMyOrders();
             }
