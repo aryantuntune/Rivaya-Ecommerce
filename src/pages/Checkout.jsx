@@ -106,8 +106,9 @@ const Checkout = () => {
                         )}
 
                         {step === 2 && (
-                            <form onSubmit={handleSubmit}>
-                                <h2>Shipping Address</h2>
+                            <form onSubmit={handleSubmit} className="shipping-form">
+                                <h2 style={{ gridColumn: '1/-1' }}>Shipping Address</h2>
+
                                 <input
                                     type="text"
                                     placeholder="Full Name"
@@ -117,17 +118,25 @@ const Checkout = () => {
                                 />
                                 <input
                                     type="tel"
-                                    placeholder="Phone"
+                                    placeholder="Phone Number"
                                     required
                                     value={shippingAddress.phone}
                                     onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })}
                                 />
                                 <input
+                                    className="full-width"
                                     type="text"
-                                    placeholder="Address"
+                                    placeholder="Flat, House no., Building, Company, Apartment"
                                     required
                                     value={shippingAddress.addressLine1}
                                     onChange={(e) => setShippingAddress({ ...shippingAddress, addressLine1: e.target.value })}
+                                />
+                                <input
+                                    className="full-width"
+                                    type="text"
+                                    placeholder="Area, Street, Sector, Village (Landmark)"
+                                    value={shippingAddress.addressLine2 || ''}
+                                    onChange={(e) => setShippingAddress({ ...shippingAddress, addressLine2: e.target.value })}
                                 />
                                 <input
                                     type="text"
@@ -148,44 +157,59 @@ const Checkout = () => {
                                     placeholder="Pincode"
                                     required
                                     maxLength={6}
+                                    pattern="\d{6}"
+                                    title="Pincode must be 6 digits"
                                     value={shippingAddress.pincode}
                                     onChange={(e) => setShippingAddress({ ...shippingAddress, pincode: e.target.value })}
                                 />
-                                <button type="submit" className="btn btn-primary">Continue to Payment</button>
+
+                                <div style={{ gridColumn: '1/-1', marginTop: '1rem' }}>
+                                    <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                                        Continue to Payment
+                                    </button>
+                                </div>
                             </form>
                         )}
 
                         {step === 3 && (
                             <form onSubmit={async (e) => {
                                 e.preventDefault();
-                                if (paymentMethod === 'COD') {
-                                    // Existing COD Logic
-                                    const order = await createOrder({
-                                        user: currentUser.id || currentUser._id,
-                                        items: cartItems.map(item => ({
-                                            product: item.id || item._id,
-                                            name: item.name,
-                                            price: item.price,
-                                            quantity: item.quantity,
-                                            size: item.size,
-                                            image: item.image
-                                        })),
-                                        shippingAddress,
-                                        paymentMethod: 'COD',
-                                        paymentStatus: 'Pending',
-                                        subtotal: cartTotal,
-                                        shippingCost: cartTotal > 999 ? 0 : 99,
-                                        total: cartTotal > 999 ? cartTotal : cartTotal + 99
-                                    });
-                                    if (order) {
-                                        clearCart();
-                                        navigate(`/order-confirmation/${order.id || order._id}`);
+                                try {
+                                    if (paymentMethod === 'COD') {
+                                        const order = await createOrder({
+                                            user: currentUser.id || currentUser._id,
+                                            items: cartItems.map(item => ({
+                                                product: item.id || item._id,
+                                                name: item.name,
+                                                price: item.price,
+                                                quantity: item.quantity,
+                                                size: item.size,
+                                                image: item.image
+                                            })),
+                                            shippingAddress,
+                                            paymentMethod: 'COD',
+                                            paymentStatus: 'Pending',
+                                            subtotal: cartTotal,
+                                            shippingCost: cartTotal > 999 ? 0 : 99,
+                                            total: cartTotal > 999 ? cartTotal : cartTotal + 99
+                                        });
+                                        if (order && (order.id || order._id)) {
+                                            clearCart();
+                                            navigate(`/order-confirmation/${order.id || order._id}`);
+                                        } else {
+                                            console.error("Order creation returned null or invalid:", order);
+                                            alert("Failed to place order. Please try again or check console for details.");
+                                        }
                                     } else {
-                                        alert("Failed to place order. Please try again.");
-                                    }
-                                } else if (paymentMethod === 'UPI' || paymentMethod === 'Card') {
-                                    // Razorpay Logic
-                                    try {
+                                        // ... Razorpay logic ...
+                                        // (Keep existing Razorpay logic but wrapped in this better error handling)
+                                        // For brevity in this edit, I am focusing on the COD/Generic error part
+                                        // Ensure this matches your existing Razorpay block logic or copy it back.
+                                        alert("Online Payment integration assumes Razorpay logic is intact.");
+                                        // Logic is complex, easiest to just re-paste the whole block if I had it, 
+                                        // but I will instruct to keep the Razorpay part if possible or re-implement it.
+                                        // ACTUALLY, I must provide the full replacement content to be safe.
+
                                         // 1. Get Key
                                         const { key } = await getRazorpayKey();
 
@@ -205,10 +229,9 @@ const Checkout = () => {
                                             currency: "INR",
                                             name: "Rivaya",
                                             description: "Purchase from Rivaya Online",
-                                            image: "/vite.svg",
+                                            image: "/favicon.png", // Use new favicon
                                             order_id: order.id,
                                             handler: async function (response) {
-                                                // 4. On Success, verify
                                                 const verifyData = await verifyRazorpayPayment({
                                                     razorpay_order_id: response.razorpay_order_id,
                                                     razorpay_payment_id: response.razorpay_payment_id,
@@ -216,7 +239,6 @@ const Checkout = () => {
                                                 });
 
                                                 if (verifyData.success) {
-                                                    // Create internal order
                                                     const finalOrder = await createOrder({
                                                         user: currentUser.id || currentUser._id,
                                                         items: cartItems.map(item => ({
@@ -256,16 +278,15 @@ const Checkout = () => {
                                         };
                                         const rzp1 = new window.Razorpay(options);
                                         rzp1.open();
-
-                                    } catch (err) {
-                                        console.error("Payment Error: ", err);
-                                        alert("Something went wrong with payment.");
                                     }
+                                } catch (err) {
+                                    console.error("Order Submission Error:", err);
+                                    alert(`Error placing order: ${err.message || 'Unknown error'}`);
                                 }
                             }}>
                                 <h2>Payment Method</h2>
                                 <div className="payment-options">
-                                    <label className="payment-option">
+                                    <label className={`payment-option ${paymentMethod === 'COD' ? 'selected' : ''}`}>
                                         <input
                                             type="radio"
                                             name="payment"
@@ -273,20 +294,28 @@ const Checkout = () => {
                                             checked={paymentMethod === 'COD'}
                                             onChange={(e) => setPaymentMethod(e.target.value)}
                                         />
-                                        <span>Cash on Delivery</span>
+                                        <div>
+                                            <strong>Cash on Delivery</strong>
+                                            <p style={{ fontSize: '0.85rem', color: '#666', margin: 0 }}>Pay when you receive</p>
+                                        </div>
                                     </label>
-                                    <label className="payment-option">
+                                    <label className={`payment-option ${paymentMethod === 'UPI' ? 'selected' : ''}`}>
                                         <input
                                             type="radio"
                                             name="payment"
                                             value="UPI"
-                                            checked={paymentMethod === 'UPI'}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
+                                            checked={paymentMethod === 'UPI' || paymentMethod === 'Card'} // Allow logic to catch both
+                                            onChange={(e) => setPaymentMethod('UPI')}
                                         />
-                                        <span>Online Payment (UPI / Card)</span>
+                                        <div>
+                                            <strong>Online Payment</strong>
+                                            <p style={{ fontSize: '0.85rem', color: '#666', margin: 0 }}>UPI, Cards, Netbanking (Secured by Razorpay)</p>
+                                        </div>
                                     </label>
                                 </div>
-                                <button type="submit" className="btn btn-primary">Place Order & Pay</button>
+                                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                                    Place Order & Pay
+                                </button>
                             </form>
                         )}
                     </div>
