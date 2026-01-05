@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAdmin } from '../context/AdminContext';
-import { Check } from 'lucide-react';
+import { Check, ArrowLeft, Trash2 } from 'lucide-react';
 import './Checkout.css';
 
 const Checkout = () => {
@@ -43,26 +43,7 @@ const Checkout = () => {
         } else if (step === 2) {
             setStep(3);
         } else {
-            // Create order
-            const order = createOrder({
-                user: currentUser.id,
-                items: cartItems.map(item => ({
-                    product: item,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    size: item.size,
-                    image: item.image
-                })),
-                shippingAddress,
-                paymentMethod,
-                subtotal: cartTotal,
-                shippingCost: cartTotal > 999 ? 0 : 99,
-                total: cartTotal > 999 ? cartTotal : cartTotal + 99
-            });
-
-            clearCart();
-            navigate(`/order-confirmation/${order.id}`);
+            // Final step handled by button in Step 3
         }
     };
 
@@ -86,22 +67,55 @@ const Checkout = () => {
 
                 <div className="checkout-content">
                     <div className="checkout-form">
+                        {step > 1 && (
+                            <button
+                                className="back-btn"
+                                onClick={() => setStep(step - 1)}
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', border: 'none', background: 'none', cursor: 'pointer', color: '#666' }}
+                            >
+                                <ArrowLeft size={16} /> Back
+                            </button>
+                        )}
+
                         {step === 1 && (
-                            <div>
-                                <h2>Review Your Cart</h2>
-                                {cartItems.map(item => (
-                                    <div key={`${item.id}-${item.size}`} className="checkout-item">
-                                        <img src={item.image} alt={item.name} />
-                                        <div>
-                                            <h4>{item.name}</h4>
-                                            <p>Size: {item.size} | Qty: {item.quantity}</p>
-                                            <p className="price">₹{item.price * item.quantity}</p>
-                                        </div>
+                            <div className="cart-review-section">
+                                <h2>Review Your Cart ({cartItems.length} items)</h2>
+                                {cartItems.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '2rem' }}>
+                                        <p>Your cart is empty.</p>
+                                        <button className="btn btn-outline" onClick={() => navigate('/shop')}>Continue Shopping</button>
                                     </div>
-                                ))}
-                                <button className="btn btn-primary" onClick={() => setStep(2)}>
-                                    Continue to Shipping
-                                </button>
+                                ) : (
+                                    <>
+                                        <div className="cart-items-list">
+                                            {cartItems.map(item => (
+                                                <div key={`${item.id}-${item.size}`} className="checkout-item" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1.5rem' }}>
+                                                    <div className="item-image" style={{ width: '80px', height: '100px', flexShrink: 0 }}>
+                                                        <img
+                                                            src={item.image}
+                                                            alt={item.name}
+                                                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }}
+                                                            onError={(e) => { e.target.src = '/placeholder.jpg'; }}
+                                                        />
+                                                    </div>
+                                                    <div className="item-details" style={{ flex: 1 }}>
+                                                        <h4 style={{ margin: '0 0 0.5rem 0' }}>{item.name}</h4>
+                                                        <div style={{ display: 'flex', gap: '1rem', color: '#666', fontSize: '0.9rem' }}>
+                                                            <span>Size: <strong>{item.size}</strong></span>
+                                                            <span>Qty: <strong>{item.quantity}</strong></span>
+                                                        </div>
+                                                        <p className="price" style={{ marginTop: '0.5rem', fontWeight: '600', color: 'var(--color-primary)' }}>
+                                                            ₹{item.price * item.quantity}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button className="btn btn-primary" onClick={() => setStep(2)} style={{ width: '100%', marginTop: '1rem' }}>
+                                            Continue to Shipping
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         )}
 
@@ -201,19 +215,8 @@ const Checkout = () => {
                                             alert("Failed to place order. Please try again or check console for details.");
                                         }
                                     } else {
-                                        // ... Razorpay logic ...
-                                        // (Keep existing Razorpay logic but wrapped in this better error handling)
-                                        // For brevity in this edit, I am focusing on the COD/Generic error part
-                                        // Ensure this matches your existing Razorpay block logic or copy it back.
-                                        alert("Online Payment integration assumes Razorpay logic is intact.");
-                                        // Logic is complex, easiest to just re-paste the whole block if I had it, 
-                                        // but I will instruct to keep the Razorpay part if possible or re-implement it.
-                                        // ACTUALLY, I must provide the full replacement content to be safe.
-
-                                        // 1. Get Key
+                                        // Razorpay Integration
                                         const { key } = await getRazorpayKey();
-
-                                        // 2. Create Order on Server
                                         const totalAmount = cartTotal > 999 ? cartTotal : cartTotal + 99;
                                         const { order } = await createRazorpayOrder(totalAmount);
 
@@ -222,14 +225,13 @@ const Checkout = () => {
                                             return;
                                         }
 
-                                        // 3. Open Razorpay
                                         const options = {
                                             key: key,
                                             amount: order.amount,
                                             currency: "INR",
                                             name: "Rivaya",
                                             description: "Purchase from Rivaya Online",
-                                            image: "/favicon.png", // Use new favicon
+                                            image: "/favicon.png",
                                             order_id: order.id,
                                             handler: async function (response) {
                                                 const verifyData = await verifyRazorpayPayment({
@@ -304,7 +306,7 @@ const Checkout = () => {
                                             type="radio"
                                             name="payment"
                                             value="UPI"
-                                            checked={paymentMethod === 'UPI' || paymentMethod === 'Card'} // Allow logic to catch both
+                                            checked={paymentMethod === 'UPI' || paymentMethod === 'Card'}
                                             onChange={(e) => setPaymentMethod('UPI')}
                                         />
                                         <div>

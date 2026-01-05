@@ -50,8 +50,58 @@ const AdminProductManager = () => {
         setIsEditing(true);
     };
 
+    const handleImageUpload = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            const newImages = [];
+            let processed = 0;
+
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    newImages.push(reader.result);
+                    processed++;
+                    if (processed === files.length) {
+                        setEditProduct(prev => ({
+                            ...prev,
+                            images: [...prev.images.filter(img => img), ...newImages]
+                        }));
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
+    const removeImage = (indexToRemove) => {
+        setEditProduct(prev => ({
+            ...prev,
+            images: prev.images.filter((_, index) => index !== indexToRemove)
+        }));
+    };
+
+    const validateProduct = () => {
+        // Validate SKUs
+        const skus = editProduct.variants.map(v => v.sku?.trim()).filter(Boolean);
+        const uniqueSkus = new Set(skus);
+        if (skus.length !== uniqueSkus.size) {
+            alert("Error: Duplicate SKUs detected within this product. Please ensure each variant has a unique SKU.");
+            return false;
+        }
+
+        // Validate Images
+        if (!editProduct.images || editProduct.images.length === 0 || editProduct.images.every(img => !img)) {
+            alert("Error: Please upload at least one product image.");
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSave = (e) => {
         e.preventDefault();
+        if (!validateProduct()) return;
+
         if (editProduct.id) {
             updateProduct(editProduct.id, editProduct);
         } else {
@@ -59,24 +109,6 @@ const AdminProductManager = () => {
         }
         setIsEditing(false);
         setEditProduct(null);
-    };
-
-    const handleVariantChange = (index, field, value) => {
-        const newVariants = [...editProduct.variants];
-        newVariants[index][field] = value;
-        setEditProduct({ ...editProduct, variants: newVariants });
-    };
-
-    const addVariant = () => {
-        setEditProduct({
-            ...editProduct,
-            variants: [...editProduct.variants, { size: '', stock: 0, sku: '' }]
-        });
-    };
-
-    const removeVariant = (index) => {
-        const newVariants = editProduct.variants.filter((_, i) => i !== index);
-        setEditProduct({ ...editProduct, variants: newVariants });
     };
 
     return (
@@ -139,6 +171,15 @@ const AdminProductManager = () => {
                         </div>
 
                         <div className="form-group">
+                            <label>Original Price (₹) <span className="text-muted" style={{ fontWeight: 'normal' }}>(Optional - for strike-through)</span></label>
+                            <input
+                                type="number"
+                                value={editProduct.originalPrice || ''}
+                                onChange={(e) => setEditProduct({ ...editProduct, originalPrice: Number(e.target.value) })}
+                            />
+                        </div>
+
+                        <div className="form-group">
                             <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                                 <input
                                     type="checkbox"
@@ -148,6 +189,16 @@ const AdminProductManager = () => {
                                 />
                                 <span>Mark as Trending (Shows on Home Page)</span>
                             </label>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Description</label>
+                            <textarea
+                                value={editProduct.description}
+                                onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })}
+                                rows={4}
+                                required
+                            />
                         </div>
 
                         <div className="form-group">
@@ -171,10 +222,11 @@ const AdminProductManager = () => {
                                         />
                                         <input
                                             type="text"
-                                            placeholder="SKU (e.g. RIV-001)"
+                                            placeholder="SKU (e.g. RIV-001-S)"
                                             value={variant.sku}
                                             onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
                                             className="sku-input"
+                                            title="Must be unique"
                                         />
                                         <button type="button" className="btn-icon delete" onClick={() => removeVariant(index)}>
                                             <Trash size={16} />
@@ -188,35 +240,54 @@ const AdminProductManager = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Product Image</label>
+                            <label>Product Images (Select multiple)</label>
                             <div className="image-upload-container">
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => {
-                                        const file = e.target.files[0];
-                                        if (file) {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => {
-                                                setEditProduct({ ...editProduct, images: [reader.result] });
-                                            };
-                                            reader.readAsDataURL(file);
-                                        }
-                                    }}
+                                    multiple
+                                    onChange={handleImageUpload}
                                     className="file-input"
                                 />
-                                {editProduct.images[0] && (
-                                    <div className="image-preview">
-                                        <img src={editProduct.images[0]} alt="Preview" />
-                                        <button
-                                            type="button"
-                                            className="btn-icon remove-image"
-                                            onClick={() => setEditProduct({ ...editProduct, images: [''] })}
-                                        >
-                                            <Trash size={14} />
-                                        </button>
-                                    </div>
-                                )}
+                                <div className="image-gallery-preview" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
+                                    {editProduct.images && editProduct.images.length > 0 && editProduct.images.map((img, idx) => (
+                                        img && (
+                                            <div key={idx} className="image-preview" style={{ position: 'relative', width: '100px', height: '120px' }}>
+                                                <img
+                                                    src={img}
+                                                    alt={`Preview ${idx}`}
+                                                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="btn-icon remove-image"
+                                                    onClick={() => removeImage(idx)}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '-8px',
+                                                        right: '-8px',
+                                                        background: 'red',
+                                                        color: 'white',
+                                                        borderRadius: '50%',
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        border: 'none',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                                {idx === 0 && <span style={{ position: 'absolute', bottom: '0', left: '0', right: '0', background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: '0.7rem', padding: '2px', textAlign: 'center' }}>Main</span>}
+                                            </div>
+                                        )
+                                    ))}
+                                </div>
+                                <p className="text-muted" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                                    First image will be the main display image. Upload up to 7 images.
+                                </p>
                             </div>
                         </div>
 
@@ -237,10 +308,11 @@ const AdminProductManager = () => {
                     </div>
                     {products.map(p => {
                         const totalStock = p.variants ? p.variants.reduce((sum, v) => sum + v.stock, 0) : 0;
+                        const mainImage = p.images && p.images.length > 0 ? p.images[0] : '';
                         return (
                             <div key={p.id} className="table-row">
                                 <div className="product-cell">
-                                    <img src={p.images[0]} alt={p.name} />
+                                    {mainImage && <img src={mainImage} alt={p.name} />}
                                     <span>{p.name}</span>
                                 </div>
                                 <span>{p.category}</span>

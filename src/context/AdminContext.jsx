@@ -384,7 +384,36 @@ export const AdminProvider = ({ children }) => {
     };
 
     // --- Orders ---
-    const createOrder = () => { };
+    const createOrder = async (orderData) => {
+        try {
+            const res = await fetch(`${API_URL}/orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(orderData)
+            });
+            if (res.status === 401) { logout(); alert("Session expired."); return null; }
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || `Server error: ${res.status}`);
+            }
+
+            if (data.success) {
+                // Ideally update local state if this user is admin viewing their own orders, 
+                // but for now just return the order for redirection.
+                return data.data;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error("Create Order Error:", error);
+            throw error; // Propagate error to component for alert
+        }
+    };
     const updateOrderStatus = () => { };
 
     // --- Payment & User Actions ---

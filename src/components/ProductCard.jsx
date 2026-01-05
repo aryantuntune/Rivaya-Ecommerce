@@ -43,7 +43,8 @@ const ProductCard = ({ product }) => {
             if (availableVariant) sizeToAdd = availableVariant.size;
         }
 
-        addToCart(product, sizeToAdd, 1);
+        // addToCart signature: (product, quantity, size)
+        addToCart(product, 1, sizeToAdd);
         trackProductInteraction(product.id, 'addToCart');
     };
 

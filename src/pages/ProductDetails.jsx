@@ -59,9 +59,23 @@ const ProductDetails = () => {
             alert('Please select a size');
             return;
         }
-        addToCart({ ...product, size: selectedSize });
+        // Ensure we pass a single image string to the cart
+        const mainImage = (product.images && product.images.length > 0) ? product.images[0] : '';
+        // addToCart signature: (product, quantity, size)
+        addToCart({ ...product, image: mainImage }, 1, selectedSize);
         trackProductInteraction(product.id, 'addToCart');
         alert('Added to Cart!');
+    };
+
+    const handleBuyNow = () => {
+        if (!selectedSize) {
+            alert('Please select a size');
+            return;
+        }
+        const mainImage = (product.images && product.images.length > 0) ? product.images[0] : '';
+        addToCart({ ...product, image: mainImage }, 1, selectedSize);
+        trackProductInteraction(product.id, 'addToCart');
+        navigate('/checkout');
     };
 
     const handleSubmitReview = async (e) => {
@@ -157,6 +171,9 @@ const ProductDetails = () => {
                     <div className="action-buttons">
                         <button className="btn btn-primary add-cart-btn" onClick={handleAddToCart}>
                             Add to Cart
+                        </button>
+                        <button className="btn btn-secondary buy-now-btn" onClick={handleBuyNow} style={{ marginLeft: '1rem', backgroundColor: '#333', color: 'white' }}>
+                            Buy Now
                         </button>
                         <button className="btn btn-outline wishlist-btn">
                             <Heart size={20} />
