@@ -45,9 +45,20 @@ const Home = () => {
       {/* 3. Shop by Category (Locks implemented) */}
       <CategoryGrid />
 
+      {/* 5. Modern & Minimal Section (Moved Above Trending) */}
+      <section className="modern-minimal-section">
+        <div className="modern-content">
+          <h2>Modern & Minimal</h2>
+          <p>Explore our specially designed and stitched curated options for you.</p>
+          <Link to="/shop?collection=modern" className="btn btn-primary">
+            Explore Collection
+          </Link>
+        </div>
+      </section>
+
       {/* 4. Trending Now (8 Items) */}
       <section className="section container">
-        <div className="section-header">
+        <div className="section-header center-text" style={{ textAlign: 'center' }}>
           <h2>Trending Now</h2>
           <p>Our most loved styles</p>
         </div>
@@ -61,16 +72,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 5. Modern & Minimal Section (Replacing Royal Collection) */}
-      <section className="modern-minimal-section">
-        <div className="modern-content">
-          <h2>Modern & Minimal</h2>
-          <p>Explore our specially designed and stitched curated options for you.</p>
-          <Link to="/shop?collection=modern" className="btn btn-primary">
-            Explore Collection
-          </Link>
-        </div>
-      </section>
+
 
       {/* 6. Customer Testimonials */}
       <section className="section bg-light">

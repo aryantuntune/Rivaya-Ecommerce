@@ -6,6 +6,7 @@ import { useAdmin } from '../context/AdminContext';
 import CartDrawer from './CartDrawer';
 import AuthModal from './AuthModal';
 import './Navbar.css';
+import logo from '../assets/rivaya-logo.png';
 
 const Navbar = ({ isBannerVisible = true }) => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -44,7 +45,7 @@ const Navbar = ({ isBannerVisible = true }) => {
                             <Menu size={24} />
                         </button>
                         <Link to="/" className="brand-logo">
-                            <span className="brand-text">RIVAYA</span>
+                            <img src={logo} alt="RIVAYA" className="navbar-logo-img" />
                         </Link>
                     </div>
 

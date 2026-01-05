@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 import { useCart } from '../context/CartContext';
 import { Star, Truck, ShieldCheck, Share2, Heart, Send } from 'lucide-react';
