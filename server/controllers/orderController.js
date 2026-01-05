@@ -66,21 +66,16 @@ exports.createOrder = async (req, res) => {
             total
         });
 
-        // 3. Send Email Notification
-        try {
-            const sendEmail = require('../utils/sendEmail');
-            await sendEmail({
-                email: req.user.email,
-                subject: 'Rivaya Order Confirmation',
-                message: `<h1>Thank You for Your Order!</h1>
-                          <p>Order ID: <b>${order._id}</b> has been placed successfully.</p>
-                          <p>Total: ₹${total}</p>
-                          <p>We will notify you once it ships.</p>`
-            });
-        } catch (emailError) {
-            console.error('Email sending failed:', emailError);
-            // Don't fail the order just because email failed
-        }
+        // 3. Send Email Notification (Non-blocking)
+        const sendEmail = require('../utils/sendEmail');
+        sendEmail({
+            email: req.user.email,
+            subject: 'Rivaya Order Confirmation',
+            message: `<h1>Thank You for Your Order!</h1>
+                      <p>Order ID: <b>${order._id}</b> has been placed successfully.</p>
+                      <p>Total: ₹${total}</p>
+                      <p>We will notify you once it ships.</p>`
+        }).catch(err => console.error('Email sending failed (background):', err));
 
         res.status(201).json({
             success: true,

@@ -4,12 +4,17 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Initialize Razorpay
-// Note: These env vars must be set in .env
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_YOUR_KEY_ID',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || 'YOUR_KEY_SECRET'
-});
+// Initialize Razorpay conditionally or lazily to prevent boot crash
+const getRazorpayInstance = () => {
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        console.error("Razorpay Keys Missing in Environment!");
+        return null;
+    }
+    return new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
+    });
+};
 
 // @desc    Create Razorpay Order
 // @route   POST /api/payment/create-order
@@ -17,9 +22,15 @@ const razorpay = new Razorpay({
 const createRazorpayOrder = async (req, res) => {
     try {
         const { amount } = req.body; // Amount in INR
+        console.log(`Creating Razorpay Order. Amount: ${amount}`);
 
         if (!amount) {
             return res.status(400).json({ success: false, message: 'Amount is required' });
+        }
+
+        const razorpay = getRazorpayInstance();
+        if (!razorpay) {
+            return res.status(500).json({ success: false, message: 'Server Payment Configuration Missing' });
         }
 
         const options = {

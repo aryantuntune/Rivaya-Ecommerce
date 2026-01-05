@@ -190,6 +190,8 @@ const Checkout = () => {
                                 e.preventDefault();
                                 try {
                                     if (paymentMethod === 'COD') {
+                                        // COD FLOW
+                                        console.log("Processing COD Order...");
                                         const order = await createOrder({
                                             user: currentUser.id || currentUser._id,
                                             items: cartItems.map(item => ({
@@ -207,26 +209,38 @@ const Checkout = () => {
                                             shippingCost: cartTotal > 999 ? 0 : 99,
                                             total: cartTotal > 999 ? cartTotal : cartTotal + 99
                                         });
+
                                         if (order && (order.id || order._id)) {
                                             clearCart();
                                             navigate(`/order-confirmation/${order.id || order._id}`);
                                         } else {
-                                            console.error("Order creation returned null or invalid:", order);
-                                            alert("Failed to place order. Please try again or check console for details.");
+                                            alert("Failed to place COD order. Please try again.");
                                         }
                                     } else {
-                                        // Razorpay Integration
-                                        const { key } = await getRazorpayKey();
-                                        const totalAmount = cartTotal > 999 ? cartTotal : cartTotal + 99;
-                                        const { order } = await createRazorpayOrder(totalAmount);
+                                        // ONLINE FLOW
+                                        console.log("Processing Online Order...");
 
-                                        if (!order) {
-                                            alert("Server error. Could not initiate payment.");
+                                        // 1. Get Key
+                                        const errorMsg = "Online payment setup is incomplete.";
+                                        const keyRes = await getRazorpayKey().catch(() => null);
+                                        if (!keyRes || !keyRes.key || keyRes.key.includes('YOUR_KEY')) {
+                                            alert("Online payments are currently disabled. Please use COD.");
                                             return;
                                         }
 
+                                        const totalAmount = cartTotal > 999 ? cartTotal : cartTotal + 99;
+
+                                        // 2. Create Order
+                                        const orderRes = await createRazorpayOrder(totalAmount).catch(err => null);
+                                        if (!orderRes || !orderRes.order) {
+                                            alert("Could not initiate payment. Server might be misconfigured.");
+                                            return;
+                                        }
+
+                                        const { order } = orderRes;
+
                                         const options = {
-                                            key: key,
+                                            key: keyRes.key,
                                             amount: order.amount,
                                             currency: "INR",
                                             name: "Rivaya",
