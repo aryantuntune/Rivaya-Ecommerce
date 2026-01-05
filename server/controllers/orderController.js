@@ -21,11 +21,35 @@ exports.createOrder = async (req, res) => {
             if (!product) {
                 return res.status(404).json({ success: false, message: `Product not found` });
             }
-            if (product.stockQuantity < item.quantity) {
-                return res.status(400).json({ success: false, message: `${product.name} is out of stock` });
+
+            // Check for variants (size-based stock)
+            if (product.variants && product.variants.length > 0 && item.size) {
+                const variantIndex = product.variants.findIndex(v => v.size === item.size);
+
+                if (variantIndex === -1) {
+                    return res.status(400).json({ success: false, message: `Size ${item.size} invalid for ${product.name}` });
+                }
+
+                if (product.variants[variantIndex].stock < item.quantity) {
+                    return res.status(400).json({ success: false, message: `${product.name} (Size: ${item.size}) is out of stock` });
+                }
+
+                // Decrement variant stock
+                product.variants[variantIndex].stock -= item.quantity;
+
+                // Also decrement global stock if it's being tracked
+                if (product.stockQuantity >= item.quantity) {
+                    product.stockQuantity -= item.quantity;
+                }
+            } else {
+                // Fallback for non-variant products
+                if (product.stockQuantity < item.quantity) {
+                    return res.status(400).json({ success: false, message: `${product.name} is out of stock` });
+                }
+                // Decrement stock
+                product.stockQuantity -= item.quantity;
             }
-            // Decrement stock
-            product.stockQuantity -= item.quantity;
+
             // Update analytics
             product.analytics.purchases += item.quantity;
             await product.save();
