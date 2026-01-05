@@ -32,6 +32,11 @@ export const CartProvider = ({ children }) => {
     const addToCart = (product, quantity = 1, size = 'M') => {
         setCartItems(prev => {
             const existing = prev.find(item => item.id === product.id && item.size === size);
+
+            // Create a sanitized item object to avoid storing large Base64 arrays
+            // We only keep the specific image passed or the first one, but NOT the full images array
+            const { images, variants, reviews, ...cleanProduct } = product;
+
             if (existing) {
                 return prev.map(item =>
                     item.id === product.id && item.size === size
@@ -39,7 +44,7 @@ export const CartProvider = ({ children }) => {
                         : item
                 );
             }
-            return [...prev, { ...product, quantity, size }];
+            return [...prev, { ...cleanProduct, quantity, size }];
         });
     };
 
