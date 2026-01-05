@@ -511,7 +511,28 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
-    const updateOrderStatus = () => { };
+    const updateOrderStatus = async (orderId, newStatus) => {
+        try {
+            const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ orderStatus: newStatus })
+            });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                // Update local state immediately
+                setOrders(orders.map(o => o.id === orderId ? { ...o, orderStatus: newStatus } : o));
+            }
+        } catch (error) {
+            console.error("Update Order Status Error:", error);
+            alert("Failed to update order status");
+        }
+    };
 
     // --- Payment & User Actions ---
     const deleteAccount = async () => {

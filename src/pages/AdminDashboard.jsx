@@ -6,7 +6,7 @@ import AdminProductManager from '../components/AdminProductManager';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-    const { currentUser, products, orders, users, getStats, updateBanner, banner, heroBanners, toggleHeroBanner, updateHeroBanner, complaints, resolveComplaint, addReview, deleteReview, logout } = useAdmin();
+    const { currentUser, products, orders, users, getStats, updateBanner, banner, heroBanners, toggleHeroBanner, updateHeroBanner, complaints, resolveComplaint, addReview, deleteReview, logout, updateOrderStatus } = useAdmin();
     const [activeTab, setActiveTab] = useState('overview');
     const navigate = useNavigate();
 
@@ -144,8 +144,8 @@ const AdminDashboard = () => {
                                     {orders.slice(0, 5).map(order => (
                                         <div key={order.id} className="order-row">
                                             <div>
-                                                <strong>Order #{order.id}</strong>
-                                                <p>{order.items.length} items</p>
+                                                <strong>Order #{order.id?.slice(-8).toUpperCase()}</strong>
+                                                <p>{order.items?.length || 0} items</p>
                                             </div>
                                             <div>
                                                 <p>₹{order.total}</p>
@@ -180,15 +180,23 @@ const AdminDashboard = () => {
                                     {orders.map(order => (
                                         <div key={order.id} className="order-row">
                                             <div>
-                                                <strong>#{order.id}</strong>
-                                                <p>{order.items.length} items</p>
+                                                <strong>#{order.id?.slice(-8).toUpperCase()}</strong>
+                                                <p>{order.items?.length || 0} items</p>
                                             </div>
-                                            <div>User #{order.user}</div>
+                                            <div>{order.shippingAddress?.fullName || order.user?.name || 'Guest'}</div>
                                             <div>₹{order.total}</div>
                                             <div>
-                                                <span className={`status-badge ${order.orderStatus.toLowerCase()}`}>
-                                                    {order.orderStatus}
-                                                </span>
+                                                <select
+                                                    value={order.orderStatus}
+                                                    onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                                                    className="status-select"
+                                                >
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Confirmed">Confirmed</option>
+                                                    <option value="Shipped">Shipped</option>
+                                                    <option value="Delivered">Delivered</option>
+                                                    <option value="Cancelled">Cancelled</option>
+                                                </select>
                                             </div>
                                             <div>{new Date(order.createdAt).toLocaleDateString()}</div>
                                         </div>
