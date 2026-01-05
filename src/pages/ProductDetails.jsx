@@ -93,7 +93,14 @@ const ProductDetails = () => {
         alert("Review Submitted!");
     };
 
-    if (!product) return <div className="loading">Loading...</div>;
+    if (!product) {
+        return (
+            <div className="loading-container">
+                <div className="spinner"></div>
+                <div className="loading-text">Loading Details...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="product-details-page container">
