@@ -77,7 +77,7 @@ const Home = () => {
       {/* 6. Customer Testimonials */}
       <section className="section bg-light">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header" style={{ textAlign: 'center' }}>
             <h2>What Our Customers Say</h2>
             <p>Real stories from our community</p>
           </div>
