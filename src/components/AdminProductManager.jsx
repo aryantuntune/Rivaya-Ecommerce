@@ -341,6 +341,7 @@ const AdminProductManager = () => {
                         <span>Product</span>
                         <span>Category</span>
                         <span>Price</span>
+                        <span>Orig. Price</span>
                         <span>Total Stock</span>
                         <span>Actions</span>
                     </div>
@@ -355,6 +356,7 @@ const AdminProductManager = () => {
                                 </div>
                                 <span>{p.category}</span>
                                 <span>₹{p.price}</span>
+                                <span>{p.originalPrice ? `₹${p.originalPrice}` : '-'}</span>
                                 <span className={totalStock < 5 ? 'low-stock' : ''}>{totalStock} units</span>
                                 <div className="actions-cell">
                                     <button onClick={() => handleEdit(p)} title="Edit"><Edit size={18} /></button>

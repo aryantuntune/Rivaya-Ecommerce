@@ -24,13 +24,19 @@ exports.createOrder = async (req, res) => {
 
             // Check for variants (size-based stock)
             if (product.variants && product.variants.length > 0 && item.size) {
+                console.log(`Checking Stock for ${product.name}. Variant Size: '${item.size}'`);
+                console.log('Available Variants:', JSON.stringify(product.variants));
+
                 const variantIndex = product.variants.findIndex(v => v.size === item.size);
+                console.log(`Variant Index found: ${variantIndex}`);
 
                 if (variantIndex === -1) {
+                    console.error(`Size Mismatch! Requested: '${item.size}', Available: ${product.variants.map(v => `'${v.size}'`).join(', ')}`);
                     return res.status(400).json({ success: false, message: `Size ${item.size} invalid for ${product.name}` });
                 }
 
-                if (product.variants[variantIndex].stock < item.quantity) {
+                if (Number(product.variants[variantIndex].stock) < Number(item.quantity)) {
+                    console.error(`Insufficient Stock! Requested: ${item.quantity}, Available: ${product.variants[variantIndex].stock}`);
                     return res.status(400).json({ success: false, message: `${product.name} (Size: ${item.size}) is out of stock` });
                 }
 
