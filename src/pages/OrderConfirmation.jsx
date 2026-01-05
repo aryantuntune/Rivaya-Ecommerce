@@ -54,7 +54,7 @@ const OrderConfirmation = () => {
                     </div>
 
                     <h1>Order Confirmed!</h1>
-                    <p className="order-number">Order #{order._id}</p>
+                    <p className="order-number">Order #{order._id?.slice(-8).toUpperCase()}</p>
 
                     <p className="confirmation-message">
                         Thank you for your order! We've sent a confirmation email to your registered email address.
