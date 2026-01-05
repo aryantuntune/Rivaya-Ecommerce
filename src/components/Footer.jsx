@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Mail, MapPin, Phone } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Mail, MapPin, Phone, Youtube, Linkedin, MessageCircle } from 'lucide-react';
 import './Footer.css';
 
 const Footer = () => {
@@ -15,9 +15,13 @@ const Footer = () => {
                         Curated collections for the contemporary woman.
                     </p>
                     <div className="social-links">
-                        <a href="#" aria-label="Facebook"><Facebook size={20} /></a>
-                        <a href="#" aria-label="Instagram"><Instagram size={20} /></a>
-                        <a href="#" aria-label="Twitter"><Twitter size={20} /></a>
+                        <a href="https://www.facebook.com/share/1DQYmiEtc3/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={20} /></a>
+                        <a href="https://www.instagram.com/rivaya_store?igsh=d3l1ZXRoM3FnbDJq" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={20} /></a>
+                        <a href="https://x.com/RIVAYACLOTHR1" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><Twitter size={20} /></a>
+                        <a href="https://youtube.com/@rivaya-f3b?si=E0g-7kpN41NSOund" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><Youtube size={20} /></a>
+                        <a href="https://www.linkedin.com/in/rivaya-undefined-b628463a1" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><Linkedin size={20} /></a>
+                        <a href="https://pin.it/tt5e9DmmD" target="_blank" rel="noopener noreferrer" aria-label="Pinterest">Pin</a>
+                        <a href="https://chat.whatsapp.com/F9oC8tSZJODAVAafr7JLCb" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Community"><MessageCircle size={20} /></a>
                     </div>
                 </div>
 
@@ -31,6 +35,7 @@ const Footer = () => {
                     </ul>
                 </div>
 
+                {/* Support Links */}
                 <div className="footer-section">
                     <h3>Support</h3>
                     <ul>
@@ -54,7 +59,7 @@ const Footer = () => {
                         </li>
                         <li>
                             <Mail size={18} />
-                            <span>rivaya.executive@gmail.com</span>
+                            <span>redressal.rivaya@gmail.com</span>
                         </li>
                     </ul>
                 </div>
