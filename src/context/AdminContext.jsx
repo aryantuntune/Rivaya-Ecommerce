@@ -414,6 +414,21 @@ export const AdminProvider = ({ children }) => {
             throw error; // Propagate error to component for alert
         }
     };
+    const getOrder = async (id) => {
+        try {
+            const res = await fetch(`${API_URL}/orders/${id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.status === 401) { logout(); return null; }
+            if (!res.ok) throw new Error('Failed to fetch order');
+            const data = await res.json();
+            return data.success ? data.data : null;
+        } catch (error) {
+            console.error("Get Order Error:", error);
+            return null;
+        }
+    };
+
     const updateOrderStatus = () => { };
 
     // --- Payment & User Actions ---
@@ -491,7 +506,9 @@ export const AdminProvider = ({ children }) => {
 
         addCollection, updateCollection, deleteCollection,
         updateBanner, updateHeroBanner, toggleHeroBanner,
-        createOrder, updateOrderStatus,
+        addCollection, updateCollection, deleteCollection,
+        updateBanner, updateHeroBanner, toggleHeroBanner,
+        createOrder, getOrder, updateOrderStatus,
 
         getRazorpayKey, // Added
         createRazorpayOrder, // Added

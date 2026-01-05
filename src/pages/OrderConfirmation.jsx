@@ -6,8 +6,33 @@ import './OrderConfirmation.css';
 
 const OrderConfirmation = () => {
     const { orderId } = useParams();
-    const { orders } = useAdmin();
-    const order = orders.find(o => o.id === orderId || o._id === orderId);
+    const { getOrder } = useAdmin();
+    const [order, setOrder] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchOrder = async () => {
+            if (orderId) {
+                const data = await getOrder(orderId);
+                if (data) {
+                    setOrder(data);
+                }
+            }
+            setLoading(false);
+        };
+        fetchOrder();
+    }, [orderId, getOrder]);
+
+    if (loading) {
+        return (
+            <div className="order-confirmation-page">
+                <div className="container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
+                    <div className="spinner"></div>
+                    <p>Loading Order Details...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!order) {
         return (
