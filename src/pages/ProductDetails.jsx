@@ -155,15 +155,24 @@ const ProductDetails = () => {
                     <div className="options-section">
                         <h4>Select Size</h4>
                         <div className="size-options">
-                            {product.sizes.map(size => (
-                                <button
-                                    key={size}
-                                    className={`size-btn ${selectedSize === size ? 'active' : ''}`}
-                                    onClick={() => setSelectedSize(size)}
-                                >
-                                    {size}
-                                </button>
-                            ))}
+                            {/* Prioritize variants for size options */}
+                            {(product.variants && product.variants.length > 0 ? product.variants : product.sizes || []).map((option, idx) => {
+                                // If iterating variants, option is an object { size, stock, ... }, else it's a string
+                                const sizeName = typeof option === 'string' ? option : option.size;
+                                const isOutOfStock = typeof option !== 'string' && option.stock <= 0;
+
+                                return (
+                                    <button
+                                        key={idx}
+                                        className={`size-btn ${selectedSize === sizeName ? 'active' : ''} ${isOutOfStock ? 'disabled' : ''}`}
+                                        onClick={() => !isOutOfStock && setSelectedSize(sizeName)}
+                                        disabled={isOutOfStock}
+                                        title={isOutOfStock ? 'Out of Stock' : sizeName}
+                                    >
+                                        {sizeName}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 

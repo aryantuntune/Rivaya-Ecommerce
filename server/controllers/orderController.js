@@ -67,8 +67,8 @@ exports.createOrder = async (req, res) => {
         });
 
         // 3. Send Email Notification
-        const sendEmail = require('../utils/sendEmail');
         try {
+            const sendEmail = require('../utils/sendEmail');
             await sendEmail({
                 email: req.user.email,
                 subject: 'Rivaya Order Confirmation',
