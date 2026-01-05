@@ -164,11 +164,58 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
+    const fetchOrders = async () => {
+        try {
+            // Only admin can fetch all orders
+            const res = await fetch(`${API_URL}/orders`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.status === 401) return;
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                // Ensure ID consistency
+                setOrders(data.data.map(o => ({ ...o, id: o._id })));
+            }
+        } catch (error) {
+            console.error("Failed to fetch orders", error);
+        }
+    };
+
+    const fetchMyOrders = async () => {
+        try {
+            const res = await fetch(`${API_URL}/orders/my-orders`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.status === 401) return;
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                // We can merge these into 'orders' or keep separate. 
+                // For simplicity, let's put them in 'orders' if not admin, or just merge.
+                // Actually, let's just setOrders with these, since a user only needs their own.
+                // If admin, fetchOrders() will overwrite/superset this.
+                setOrders(data.data.map(o => ({ ...o, id: o._id })));
+            }
+        } catch (error) {
+            console.error("Failed to fetch my orders", error);
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
         fetchComplaints();
         fetchBanners();
-    }, []);
+        if (token) {
+            // Check role if possible, but for now just try fetching my orders, 
+            // and if admin, fetch all (which will overwrite/add)
+            if (currentUser && currentUser.role === 'admin') {
+                fetchOrders();
+            } else {
+                fetchMyOrders();
+            }
+        }
+    }, [token, currentUser]);
 
     // --- Products ---
     const addProduct = async (productData) => {
