@@ -4,7 +4,8 @@ const productSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, 'Product name is required'],
-        trim: true
+        trim: true,
+        index: true
     },
     description: {
         type: String,
@@ -12,13 +13,15 @@ const productSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: [true, 'Category is required']
+        required: [true, 'Category is required'],
+        index: true
         // Removed strict enum to allow flexible categories like 'Women', 'Men', 'Accessories'
     },
     price: {
         type: Number,
         required: [true, 'Price is required'],
-        min: 0
+        min: 0,
+        index: true
     },
     originalPrice: {
         type: Number,

@@ -38,13 +38,29 @@ exports.getProducts = async (req, res) => {
                     sort === 'newest' ? '-createdAt' :
                         sort === 'rating' ? '-rating' : '-createdAt';
             products = products.sort(sortBy);
+        } else {
+            products = products.sort('-createdAt');
         }
+
+        // Pagination
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 1000; // Default buffer large enough for current frontend
+        const startIndex = (page - 1) * limit;
+        const total = await Product.countDocuments(query);
+
+        products = products.skip(startIndex).limit(limit);
 
         const result = await products;
 
         res.status(200).json({
             success: true,
             count: result.length,
+            pagination: {
+                page,
+                limit,
+                total,
+                pages: Math.ceil(total / limit)
+            },
             data: result
         });
     } catch (error) {

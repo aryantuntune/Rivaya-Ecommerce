@@ -38,6 +38,7 @@ app.use('/api/collections', require('./routes/collectionRoutes'));
 app.use('/api/banners', require('./routes/bannerRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/payment', require('./routes/paymentRoutes'));
+app.use('/api/upload', require('./routes/uploadRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {

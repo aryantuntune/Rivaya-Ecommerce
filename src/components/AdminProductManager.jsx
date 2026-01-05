@@ -50,26 +50,40 @@ const AdminProductManager = () => {
         setIsEditing(true);
     };
 
-    const handleImageUpload = (e) => {
+    const handleImageUpload = async (e) => {
         const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            const newImages = [];
-            let processed = 0;
+        if (files.length === 0) return;
 
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    newImages.push(reader.result);
-                    processed++;
-                    if (processed === files.length) {
-                        setEditProduct(prev => ({
-                            ...prev,
-                            images: [...prev.images.filter(img => img), ...newImages]
-                        }));
-                    }
-                };
-                reader.readAsDataURL(file);
+        const formData = new FormData();
+        files.forEach(file => {
+            formData.append('images', file);
+        });
+
+        try {
+            // Show loading state if ideally
+            const token = localStorage.getItem('token');
+            // Assuming API_URL is accessible via context or global config. 
+            // In this file API_URL isn't imported, but assuming standard relative or configured fetch if absolute.
+            // Using relative path for simplicity as standard in this project setup.
+            const res = await fetch('/api/upload/multiple', {
+                method: 'POST',
+                body: formData
+                // Note: Do NOT set Content-Type header when using FormData; browser sets it with boundary
             });
+
+            const data = await res.json();
+
+            if (data.success) {
+                setEditProduct(prev => ({
+                    ...prev,
+                    images: [...prev.images.filter(img => img), ...data.filePaths]
+                }));
+            } else {
+                alert('Upload failed: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Upload Error:', error);
+            alert('Error uploading images');
         }
     };
 
@@ -120,10 +134,16 @@ const AdminProductManager = () => {
         e.preventDefault();
         if (!validateProduct()) return;
 
+        // Sync sizes array with variants to ensure consistency
+        const syncedProduct = {
+            ...editProduct,
+            sizes: editProduct.variants.map(v => v.size).filter(Boolean)
+        };
+
         if (editProduct.id) {
-            updateProduct(editProduct.id, editProduct);
+            updateProduct(editProduct.id, syncedProduct);
         } else {
-            addProduct(editProduct);
+            addProduct(syncedProduct);
         }
         setIsEditing(false);
         setEditProduct(null);
