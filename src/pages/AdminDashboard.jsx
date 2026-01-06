@@ -6,7 +6,7 @@ import AdminProductManager from '../components/AdminProductManager';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-    const { currentUser, products, orders, users, getStats, updateBanner, banner, heroBanners, toggleHeroBanner, updateHeroBanner, complaints, resolveComplaint, addReview, deleteReview, logout, updateOrderStatus } = useAdmin();
+    const { currentUser, products, orders, users, getStats, updateBanner, banner, heroBanners, toggleHeroBanner, updateHeroBanner, complaints, resolveComplaint, addReview, deleteReview, logout, updateOrderStatus, isLoading, refreshAdminData } = useAdmin();
     const [activeTab, setActiveTab] = useState('overview');
     const navigate = useNavigate();
 
@@ -14,12 +14,20 @@ const AdminDashboard = () => {
     const [password, setPassword] = useState('');
     const { login } = useAdmin();
 
+    // Refresh data immediately when admin dashboard mounts
+    useEffect(() => {
+        if (currentUser && currentUser.role === 'admin') {
+            refreshAdminData();
+        }
+    }, []);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         const res = await login(email, password);
         if (res.success) {
             if (res.user.role === 'admin') {
-                // Success
+                // Success - trigger immediate data refresh
+                refreshAdminData();
             } else {
                 alert("Access Denied: Admin privileges required.");
                 logout();
@@ -79,6 +87,18 @@ const AdminDashboard = () => {
     }
 
     const stats = getStats();
+
+    // Show loading state while data is being fetched
+    if (isLoading) {
+        return (
+            <div className="admin-dashboard" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid #f3f3f3', borderTop: '3px solid #5e1e2d', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
+                    <p style={{ color: '#666' }}>Loading Dashboard Data...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="admin-dashboard">

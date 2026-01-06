@@ -21,6 +21,7 @@ export const AdminProvider = ({ children }) => {
     const [complaints, setComplaints] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token') || null);
+    const [isLoading, setIsLoading] = useState(true); // Loading indicator
 
     // Legacy/Mock states (Kept only for UI compatibility, data from API)
     const [orders, setOrders] = useState([]);
@@ -235,21 +236,35 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
-    useEffect(() => {
-        fetchProducts();
-        fetchComplaints();
-        fetchBanners();
-        fetchCollections(); // Publicly visible usually
-        if (token) {
-            // Check role if possible, but for now just try fetching my orders, 
-            // and if admin, fetch all (which will overwrite/add)
-            if (currentUser && currentUser.role === 'admin') {
-                fetchOrders();
-                fetchUsers();
-            } else {
-                fetchMyOrders();
+    // Centralized refresh function for admin data
+    const refreshAdminData = async () => {
+        setIsLoading(true);
+        try {
+            await Promise.all([
+                fetchProducts(),
+                fetchComplaints(),
+                fetchBanners(),
+                fetchCollections()
+            ]);
+            // Fetch authenticated data if token exists
+            const storedToken = token || localStorage.getItem('token');
+            const storedUser = currentUser || JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (storedToken && storedUser) {
+                if (storedUser.role === 'admin') {
+                    await Promise.all([fetchOrders(), fetchUsers()]);
+                } else {
+                    await fetchMyOrders();
+                }
             }
+        } catch (error) {
+            console.error('[refreshAdminData] Error:', error);
+        } finally {
+            setIsLoading(false);
         }
+    };
+
+    useEffect(() => {
+        refreshAdminData();
     }, [token, currentUser]);
 
     // --- Products ---
@@ -667,14 +682,16 @@ export const AdminProvider = ({ children }) => {
         deleteReview,
 
         getStats,
+        isLoading,
+        refreshAdminData,
 
         addCollection, updateCollection, deleteCollection,
         updateBanner, updateHeroBanner, toggleHeroBanner,
         createOrder, getOrder, updateOrderStatus,
 
-        getRazorpayKey, // Added
-        createRazorpayOrder, // Added
-        verifyRazorpayPayment // Added
+        getRazorpayKey,
+        createRazorpayOrder,
+        verifyRazorpayPayment
     };
 
     return (
