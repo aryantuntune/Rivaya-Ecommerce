@@ -43,8 +43,10 @@ const ProductCard = ({ product }) => {
             if (availableVariant) sizeToAdd = availableVariant.size;
         }
 
+        // Extract main image for cart (CartContext strips images array)
+        const mainImage = (product.images && product.images.length > 0) ? product.images[0] : '';
         // addToCart signature: (product, quantity, size)
-        addToCart(product, 1, sizeToAdd);
+        addToCart({ ...product, image: mainImage }, 1, sizeToAdd);
         trackProductInteraction(product.id, 'addToCart');
     };
 
