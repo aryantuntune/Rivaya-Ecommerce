@@ -419,11 +419,72 @@ export const AdminProvider = ({ children }) => {
         };
     };
 
-    // Stubs
     // --- Collections ---
-    const addCollection = () => { console.log("Add Collection not implemented"); };
-    const updateCollection = () => { console.log("Update Collection not implemented"); };
-    const deleteCollection = () => { console.log("Delete Collection not implemented"); };
+    const addCollection = async (collectionData) => {
+        try {
+            const res = await fetch(`${API_URL}/collections`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(collectionData)
+            });
+            if (res.status === 401) { logout(); alert("Session expired."); return null; }
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                const newCollection = { ...data.data, id: data.data._id };
+                setCollections([...collections, newCollection]);
+                return newCollection;
+            }
+            return null;
+        } catch (error) {
+            console.error("Add Collection Error:", error);
+            return null;
+        }
+    };
+
+    const updateCollection = async (id, updates) => {
+        try {
+            const res = await fetch(`${API_URL}/collections/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updates)
+            });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                setCollections(collections.map(c => c.id === id ? { ...c, ...updates } : c));
+            }
+        } catch (error) {
+            console.error("Update Collection Error:", error);
+        }
+    };
+
+    const deleteCollection = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this collection?")) return;
+        try {
+            const res = await fetch(`${API_URL}/collections/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (res.status === 401) { logout(); alert("Session expired."); return; }
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+                setCollections(collections.filter(c => c.id !== id && c._id !== id));
+            }
+        } catch (error) {
+            console.error("Delete Collection Error:", error);
+        }
+    };
 
     // --- Banners ---
     // Legacy Sale Banner (Local State for now, could be moved to DB if needed)
@@ -607,8 +668,6 @@ export const AdminProvider = ({ children }) => {
 
         getStats,
 
-        addCollection, updateCollection, deleteCollection,
-        updateBanner, updateHeroBanner, toggleHeroBanner,
         addCollection, updateCollection, deleteCollection,
         updateBanner, updateHeroBanner, toggleHeroBanner,
         createOrder, getOrder, updateOrderStatus,
