@@ -239,33 +239,43 @@ export const AdminProvider = ({ children }) => {
     // Centralized refresh function for admin data
     const refreshAdminData = async () => {
         setIsLoading(true);
+
+        // Add timeout to prevent infinite loading
+        const timeout = setTimeout(() => {
+            console.warn('[refreshAdminData] Timeout - forcing load complete');
+            setIsLoading(false);
+        }, 10000); // 10 second timeout
+
         try {
-            await Promise.all([
+            // Fetch public data (don't await sequentially)
+            await Promise.allSettled([
                 fetchProducts(),
                 fetchComplaints(),
                 fetchBanners(),
                 fetchCollections()
             ]);
+
             // Fetch authenticated data if token exists
             const storedToken = token || localStorage.getItem('token');
             const storedUser = currentUser || JSON.parse(localStorage.getItem('currentUser') || 'null');
-            if (storedToken && storedUser) {
-                if (storedUser.role === 'admin') {
-                    await Promise.all([fetchOrders(), fetchUsers()]);
-                } else {
-                    await fetchMyOrders();
-                }
+
+            if (storedToken && storedUser && storedUser.role === 'admin') {
+                await Promise.allSettled([fetchOrders(), fetchUsers()]);
+            } else if (storedToken && storedUser) {
+                await fetchMyOrders().catch(e => console.error('fetchMyOrders failed:', e));
             }
         } catch (error) {
             console.error('[refreshAdminData] Error:', error);
         } finally {
+            clearTimeout(timeout);
             setIsLoading(false);
         }
     };
 
+    // Only run once on mount, not on every currentUser change
     useEffect(() => {
         refreshAdminData();
-    }, [token, currentUser]);
+    }, []);
 
     // --- Products ---
     const addProduct = async (productData) => {
