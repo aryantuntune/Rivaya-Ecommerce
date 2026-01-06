@@ -4,16 +4,21 @@ import ProductCard from '../components/ProductCard';
 import HeroSlider from '../components/HeroSlider'; // New banner slider
 import CategoryGrid from '../components/CategoryGrid'; // New category grid with locks
 import TestimonialCard from '../components/TestimonialCard';
-import { testimonials } from '../data/products';
 import { Truck, Headset, ShieldCheck, MessageCircle } from 'lucide-react'; // Updated icons
 import { Link } from 'react-router-dom';
 import '../styles/global.css';
 import './Home.css';
 
+// Inline testimonials data (moved from deleted mockDatabase.js)
+const testimonials = [
+  { id: 1, name: "Priya Sharma", text: "Absolutely love the quality! The kurti I ordered exceeded my expectations.", rating: 5 },
+  { id: 2, name: "Anjali Verma", text: "Fast delivery and beautiful packaging. Will definitely order again!", rating: 5 },
+  { id: 3, name: "Sneha Gupta", text: "The ethnic set was perfect for my wedding. Got so many compliments!", rating: 5 }
+];
+
 const Home = () => {
   const { products } = useAdmin();
 
-  // Logic for trending (Mock: Top 8 items)
   // Logic for trending (Filter by trending flag, fallback to top 8)
   const trendingProducts = products.filter(p => p.trending).slice(0, 8);
   // Fallback if no trending marked
@@ -24,7 +29,6 @@ const Home = () => {
       {/* 1. Hero Slider (4 Banners) */}
       <HeroSlider />
 
-      {/* 2. Features Display (Updated text) */}
       {/* 2. Features Display (Updated text from PDF) */}
       <div className="features-bar">
         {[
